@@ -201,7 +201,8 @@ app = App(name="smart_med_reminder", root_agent=med_agent)
 | AI Agent Framework | Google ADK (`google-adk`) | Clean agentic lifecycle, tool execution loop, and state management. |
 | Foundation Model | Gemma 4 (`gemma-4-26b-it`) | Apache 2.0 open-weight multimodal model for image extraction and clinical interaction. |
 | Database | MongoDB via Motor | Async document storage for semi-structured medical prescriptions, alerts, and vector history. |
-| Mapping Services | Google Maps Platform | Places and Directions APIs for emergency facility routing. |
+| Mapping Services | Google Maps Platform | Places and Directions APIs for emergency facility routing (reference: HOUSEKONECT). |
+| SMS Gateway | TalkSasa API | Automated SMS escalations for unacknowledged doses and emergency alerts (reference: PORTFOLIO). |
 | Authentication | OAuth2 + JWT (python-jose, passlib) | Role-based token authentication with bcrypt password hashing. |
 
 ---
@@ -212,8 +213,8 @@ app = App(name="smart_med_reminder", root_agent=med_agent)
 smart-medication-reminder/
 ├── LICENSE                          # MIT Open Source License
 ├── README.md                        # Documentation and competition disclosures
-├── .env.example                     # Environment template
 ├── backend/
+│   ├── .env                         # Backend environment variables
 │   ├── main.py                      # FastAPI server application
 │   ├── requirements.txt             # Python dependencies (google-adk, google-genai, motor, etc.)
 │   ├── core/
@@ -252,7 +253,8 @@ smart-medication-reminder/
 │   │   ├── reminder.py              # Reminder schedule and log schemas
 │   │   └── alert.py                 # Multi-role alert schemas
 │   └── services/
-│       ├── scheduler.py             # APScheduler background reminder worker
+│       ├── sms.py                   # TalkSasa SMS notification gateway
+│       ├── scheduler.py             # Periodic reminder worker & escalation triggers
 │       ├── notification.py          # Push notification and WebSocket manager
 │       └── image_processor.py       # Image resizing and normalization for Gemma 4
 ├── frontend/
@@ -321,10 +323,8 @@ python -m venv .venv
 # Install required dependencies
 pip install -r requirements.txt
 
-# Create your local environment file
-cp ../.env.example .env
-
-# Edit .env and supply your GOOGLE_API_KEY, MONGODB_URI, and GOOGLE_MAPS_API_KEY
+# Configure backend environment variables in backend/.env:
+# Supply your GOOGLE_API_KEY, MONGODB_URI, and GOOGLE_MAPS_API_KEY
 
 # Start the FastAPI server
 uvicorn main:app --reload --port 8000
@@ -351,30 +351,40 @@ npm run dev
 
 ## Environment Configuration
 
-Create a `.env` file in the `backend/` directory referencing `.env.example`:
+### Backend Environment (`backend/.env`)
 
 ```dotenv
 # Application Settings
+APP_NAME="Smart Medication Reminder API"
 APP_ENV=development
-SECRET_KEY=change-this-in-production-to-a-secure-random-secret
 PORT=8000
 
 # MongoDB Database Connection
 MONGODB_URI=mongodb://localhost:27017/smart_med_reminder
+DB_NAME=smart_med_reminder
 
 # Google AI & Gemma 4 Configuration
 GOOGLE_API_KEY=your_google_ai_studio_key_here
 GEMMA_MODEL_ID=gemma-4-26b-it
 
-# Google Maps Platform
-GOOGLE_MAPS_API_KEY=your_google_maps_key_here
+# TalkSasa SMS Notifications (Nairobi, Kenya)
+TALKSASA_API_KEY=your_talksasa_api_key_here
+TALKSASA_SENDER_ID=TALKSASA
+TALKSASA_API_URL=https://bulksms.talksasa.com/api/v3/sms/send
+SUPPORT_PHONE=+254702723281
 
 # JWT Authentication
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+JWT_SECRET_KEY=smart-medication-reminder-jwt-secret-key-2026-hacktoberfest
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=1440
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
+```
 
-# Notification Gateway
-PUSH_NOTIFICATION_KEY=optional_push_provider_key
+### Frontend Environment (`frontend/.env`)
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_WS_BASE_URL=ws://localhost:8000/ws
 ```
 
 ---

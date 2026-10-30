@@ -122,7 +122,7 @@ export const CameraCapture: React.FC<Props> = ({ onCapture, onClose }) => {
                 className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl flex items-center space-x-1.5 shadow-md transition text-sm"
               >
                 <Check className="w-4 h-4" />
-                <span>Analyze with Gemma 4</span>
+                <span>Analyze Prescription</span>
               </button>
             </div>
           )}

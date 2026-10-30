@@ -38,7 +38,7 @@ export const CaregiverDashboard: React.FC = () => {
               Dependent Adherence Monitor
             </h1>
             <p className="text-sm text-amber-100 max-w-xl mt-1.5 leading-relaxed">
-              Real-time synchronization with patient smart reminders. Gemma 4 automatically escalates unacknowledged doses
+              Real-time synchronization with patient smart reminders. Automatically escalates unacknowledged doses
               and flags unusual physiological symptoms.
             </p>
           </div>

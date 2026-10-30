@@ -51,7 +51,7 @@ export const DoctorDashboard: React.FC = () => {
                 Physician Clinical Portal
               </span>
               <span className="text-xs bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 px-2 py-0.5 rounded-full font-mono">
-                Gemma 4 Triage Active
+                Clinical Triage Active
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
@@ -130,7 +130,7 @@ export const DoctorDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">{selectedPatient?.full_name}</h3>
-                  <p className="text-xs text-slate-500">Gemma 4 Synthesized Clinical Brief</p>
+                  <p className="text-xs text-slate-500">Automated Longitudinal Clinical Brief</p>
                 </div>
               </div>
 

@@ -40,7 +40,7 @@ export const Login: React.FC = () => {
             <Pill className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Smart Medication Reminder</h1>
-          <p className="text-sm text-slate-500 mt-1">Autonomous Healthcare Assistant powered by Gemma 4</p>
+          <p className="text-sm text-slate-500 mt-1">Intelligent Clinical & Medication Assistant</p>
         </div>
 
         {error && (

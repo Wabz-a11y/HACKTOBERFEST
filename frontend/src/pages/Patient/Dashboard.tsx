@@ -63,7 +63,7 @@ export const PatientDashboard: React.FC = () => {
               Welcome back, {user?.full_name}
             </h1>
             <p className="text-sm text-primary-100 max-w-xl mt-1.5 leading-relaxed">
-              You have {pendingReminders.length} doses scheduled for today. Gemma 4 is actively monitoring your adherence
+              You have {pendingReminders.length} doses scheduled for today. MedAgent is actively monitoring your adherence
               and coordinating with your caregiver.
             </p>
           </div>

@@ -67,9 +67,13 @@ export interface Alert {
 export interface HospitalFacility {
   name: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
   phone?: string;
   emergency_service?: string;
   distance_estimate?: string;
   eta_minutes?: string;
+  google_maps_url?: string;
+  directions_url?: string;
 }
 

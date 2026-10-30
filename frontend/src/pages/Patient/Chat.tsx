@@ -21,7 +21,7 @@ export const PatientChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'agent',
-      text: `Hello ${user?.full_name || 'there'}! I am MedAgent, powered by Gemma 4. How can I help you today? You can ask me about medication dosage, side effects, what to do if you missed a dose, or use the camera button to scan a new prescription.`,
+      text: `Hello ${user?.full_name || 'there'}! I am MedAgent, your clinical medication assistant. How can I help you today? You can ask me about medication dosage, side effects, what to do if you missed a dose, or use the camera button to scan a new prescription.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -115,12 +115,12 @@ export const PatientChat: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="font-bold text-slate-900 text-sm">MedAgent Interactive Assistant</h2>
+              <h2 className="font-bold text-slate-900 text-sm">MedAgent Clinical Assistant</h2>
               <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
-                Active Gemma 4
+                Online
               </span>
             </div>
-            <p className="text-xs text-slate-500">Multimodal prescription analysis, interaction checks & emergency routing</p>
+            <p className="text-xs text-slate-500">Prescription intake, drug interactions & emergency facility routing</p>
           </div>
         </div>
       </div>
@@ -174,7 +174,7 @@ export const PatientChat: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-sky-600 animate-spin">
               <RefreshCw className="w-4 h-4" />
             </div>
-            <span>Gemma 4 is reasoning and querying clinical tools...</span>
+            <span>MedAgent is checking clinical guidelines and analyzing request...</span>
           </div>
         )}
         <div ref={messagesEndRef} />

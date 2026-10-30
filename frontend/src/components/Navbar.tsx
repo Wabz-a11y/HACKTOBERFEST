@@ -24,7 +24,7 @@ export const Navbar: React.FC = () => {
               <div>
                 <span className="font-bold text-lg text-slate-900 tracking-tight">MedReminder</span>
                 <span className="ml-2 text-xs font-semibold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full border border-sky-200">
-                  Gemma 4 AI
+                  AI Assistant
                 </span>
               </div>
             </Link>

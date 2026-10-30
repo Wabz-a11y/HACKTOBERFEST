@@ -6,7 +6,6 @@ from typing import List
 class Settings(BaseSettings):
     APP_NAME: str = "Smart Medication Reminder API"
     APP_ENV: str = "development"
-    SECRET_KEY: str = "smart-medication-reminder-secret-key-2026-hacktoberfest"
     PORT: int = 8000
     
     # MongoDB
@@ -17,10 +16,14 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = ""
     GEMMA_MODEL_ID: str = "gemma-4-26b-it"
     
-    # Google Maps Platform
-    GOOGLE_MAPS_API_KEY: str = ""
+    # TalkSasa SMS Gateway
+    TALKSASA_API_KEY: str = ""
+    TALKSASA_SENDER_ID: str = "TALKSASA"
+    TALKSASA_API_URL: str = "https://bulksms.talksasa.com/api/v3/sms/send"
+    SUPPORT_PHONE: str = "+254702723281"
     
-    # JWT
+    # JWT Authentication
+    JWT_SECRET_KEY: str = "smart-medication-reminder-jwt-secret-key-2026-hacktoberfest"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day for hackathon convenience
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -40,4 +43,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

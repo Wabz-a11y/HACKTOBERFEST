@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authApi } from '../../services/api';
-import { Pill, UserRole } from '../../types';
-import { ArrowRight } from 'lucide-react';
+import { UserRole } from '../../types';
+import { Pill, ArrowRight } from 'lucide-react';
 
 export const Register: React.FC = () => {
   const [email, setEmail] = useState('');

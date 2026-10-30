@@ -2,7 +2,9 @@ import asyncio
 import logging
 from datetime import datetime
 from backend.services.notification import notification_manager
+from backend.services.sms import send_caregiver_sms_alert
 from backend.routers.reminders import _MEM_REMINDERS, ReminderStatus
+from backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +14,17 @@ _running: bool = False
 
 async def check_pending_reminders():
     """
-    Periodic check verifying elapsed reminders and broadcasting notifications.
+    Periodic check verifying elapsed reminders, broadcasting WebSocket alerts,
+    and triggering TalkSasa SMS escalation to caregivers if unacknowledged.
     """
     now = datetime.utcnow()
     for rem in _MEM_REMINDERS:
         if rem["status"] == ReminderStatus.PENDING.value:
             scheduled = rem["scheduled_time"]
-            if (now - scheduled).total_seconds() > 0:
+            diff_seconds = (now - scheduled).total_seconds()
+            
+            # Reminder due window
+            if diff_seconds > 0:
                 logger.info(f"Triggering scheduled alert for medication {rem['medication_name']}")
                 await notification_manager.send_personal_message(
                     {
@@ -30,6 +36,17 @@ async def check_pending_reminders():
                     },
                     user_id=rem["patient_id"]
                 )
+
+                # If overdue by more than 30 minutes, escalate to caregiver via TalkSasa SMS
+                if diff_seconds > 1800 and not rem.get("sms_escalated"):
+                    rem["sms_escalated"] = True
+                    target_phone = settings.SUPPORT_PHONE or "+254702723281"
+                    send_caregiver_sms_alert(
+                        phone=target_phone,
+                        patient_name="Sarah Wanjiku",
+                        dose_name=f"{rem['medication_name']} ({rem['dosage']})",
+                        urgency="Missed Dose Escalation"
+                    )
 
 
 async def _run_loop():
