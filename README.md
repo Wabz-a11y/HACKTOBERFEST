@@ -4,52 +4,91 @@
 
 ---
 
+## Target Prize Categories
+
+This project is submitted for the following Hacktoberfest Nairobi 2026 categories:
+
+1. **Best Use of Gemma 4 (Gemma / Google DeepMind):**
+   The application is functionally powered by Google DeepMind's Gemma 4 open-weights model (`gemma-4-26b-it` / `gemma-4-31b-it`), executing multimodal perception (prescription image parsing, pill bottle visual inspection) and clinical conversational reasoning via `google-genai` and `google-adk`.
+2. **Best Open-Source AI Project (DigitalOcean-supported):**
+   Full open-source codebase published under OSI-approved MIT License, featuring an original agentic framework with specialized MCP tools, dual memory architecture (short-term buffer + long-term vector embeddings), and healthcare alert escalation protocols.
+
+---
+
+## Primary User & Target Audience
+
+- **Primary User:** Chronic disease patients (e.g., diabetes, hypertension, polypharmacy regimens) and elderly individuals who struggle with adherence, complex schedules, and prescription comprehension.
+- **Secondary Stakeholders:**
+  - **Family & Professional Caregivers:** Requiring real-time, passive visibility into patient dose adherence without constant manual calls.
+  - **Attending Physicians / Clinicians:** Requiring aggregated between-visit adherence metrics, symptom progression summaries, and triage notifications.
+
+---
+
 ## Problem Statement
 
-Medication non-adherence is one of the most persistent and costly challenges in modern healthcare. An estimated **50% of patients with chronic illnesses** do not take their medications as prescribed, contributing to approximately **125,000 preventable deaths** and over **$300 billion in avoidable healthcare costs** annually in the United States alone. The problem is compounded across multiple dimensions:
+Medication non-adherence is one of the most critical and cost-intensive breakdowns in modern healthcare systems. Globally, an estimated 50% of patients with chronic diseases do not adhere to prescribed medication regimens. In the United States alone, this behavior results in approximately 125,000 avoidable deaths and between $100 billion to $300 billion in avoidable direct medical costs annually. The breakdown occurs along distinct stakeholder fault lines:
 
-**For Patients:**
-Patients — particularly the elderly, those managing multiple chronic conditions, or individuals with low health literacy — struggle to keep track of complex medication schedules involving multiple drugs, varying dosages, and time-sensitive administration windows. Prescription labels are often confusing, side effects go unrecognized, and there is no accessible channel to ask questions between doctor visits. When a patient does miss a dose, they are typically unaware of whether to skip it, double up, or seek help.
+### Patient Vulnerability and Cognitive Overload
+Patients managing comorbidities face complex drug schedules with varying doses, time windows, and dietary restrictions. Prescription documentation and drug labels often rely on medical jargon, leaving patients confused about side effects, food interactions, and correct administration. When a dose is missed, patients lack accessible, immediate guidance on whether to skip the dose, double up, or consult emergency services. Fear of adverse side effects and cognitive fatigue frequently lead to voluntary discontinuation without clinician consultation.
 
-**For Caregivers:**
-Family members and professional caregivers responsible for a patient's medication adherence have no reliable, real-time visibility into whether doses have been taken. They depend on manual check-ins, phone calls, or physical presence — all of which are unsustainable, especially across distances or multiple patients. There is no centralized system that surfaces alerts proactively when a patient misses a dose or reports a new symptom.
+### The Caregiver Blind Spot
+Family members and professional caregivers bear the burden of ensuring vulnerable individuals take critical prescriptions. However, they lack continuous, real-time visibility into actual medication consumption. They must rely on intrusive phone calls or in-person inspections. When a patient misses a dose, suffers a fall, or reports feeling unwell, caregivers are often alerted hours or days too late.
 
-**For Doctors:**
-Physicians operate with limited between-visit insight into how patients are actually adhering to prescribed treatments. They receive no structured data about missed doses, self-reported symptoms, or how a patient's condition is evolving day-to-day. Prescription decisions made in a 15-minute consultation window are effectively blind to the patient's real-world behavior. Doctors also lack a way to quickly locate nearby emergency facilities relevant to a patient's location during acute episodes.
+### Clinical Blind Spots for Physicians
+Doctors typically interact with patients during brief 10 to 15-minute consultations every several months. In that window, physicians must make titration and prescription decisions based solely on self-reported, recall-biased patient feedback. They possess zero granular data regarding daily adherence, recurring symptoms, or sporadic medication pauses. Consequently, physicians frequently misdiagnose non-adherence as treatment resistance, leading to unnecessary drug escalation.
 
-**The Gap in Existing Tools:**
-Current reminder apps are static — they send a notification at a scheduled time and nothing more. They do not understand the patient's medications, cannot answer follow-up questions, do not notify caregivers or doctors, cannot parse a prescription photo, and have no ability to reason across a patient's history. They are alarms, not intelligent health assistants.
-
----
-
-## Solution
-
-**Smart Medication Reminder** is a full-stack, AI-first healthcare platform that addresses every layer of the medication adherence problem through a single, intelligent AI agent that understands context, acts autonomously, and keeps all stakeholders in the loop.
-
-**Intelligent Prescription Intake:**
-Rather than requiring patients to manually enter drug names, dosages, and schedules, the platform accepts a photo of the prescription or pill bottle. The AI agent parses the image using multimodal Gemma, extracts the structured medication data (drug name, dosage, frequency, duration), and automatically configures the patient's reminder schedule. Patients can also describe their medications in plain language, and the agent will handle the rest.
-
-**Conversational AI for Patients:**
-Patients interact with a conversational AI interface that can answer questions about their medications — what a drug does, what side effects to watch for, whether it can be taken with food, what to do if a dose is missed, and whether two medications they are taking have known interactions. The agent searches up-to-date medical sources to ensure accuracy and never fabricates clinical information. This removes the dependency on a doctor visit for routine medication questions.
-
-**Smart, Context-Aware Alerts:**
-Reminders are not generic push notifications. Each alert is contextualized — it tells the patient which medication is due, the correct dose, and any relevant notes (e.g., "take with food", "avoid direct sunlight"). If a dose is missed and unacknowledged within a configurable window, the system escalates: the caregiver is notified with the patient's adherence status, and if the patient has also reported symptoms, a structured alert is sent to the doctor summarizing the situation.
-
-**Caregiver Dashboard:**
-Caregivers have a dedicated interface showing the real-time adherence status of every patient under their care. They receive push notifications for missed doses and symptom reports. The dashboard provides a shared view of the patient's current medication schedule, recent adherence history, and any AI-flagged concerns — removing the need for constant manual check-ins.
-
-**Doctor Intelligence Layer:**
-The AI agent compiles structured, narrative health summaries for doctors — aggregating adherence data, patient-reported symptoms, and trend analysis into readable reports. Doctors receive alerts only when clinically relevant (e.g., a patient reporting chest pain or a pattern of consistent non-adherence to a critical medication). The doctor dashboard supports prescription management: reviewing current medications, issuing updates, and viewing the AI-generated patient summaries.
-
-**Location-Aware Emergency Support:**
-In situations where a patient reports acute symptoms, the AI agent uses Google Maps to identify nearby hospitals, urgent care centers, or pharmacies — including distance, estimated travel time, and contact information. This is surfaced directly in the patient's interface and included in the alert sent to the doctor.
-
-**Persistent, Learning Memory:**
-The agent maintains a dual memory system. Short-term memory preserves active session context — the current conversation, the medication being discussed, and the last action taken. Long-term memory stores the patient's history, adherence patterns, preferences, and prior interactions in a vector-indexed archive that the agent can semantically search. Over time, the agent learns each patient's habits and tailors its responses and alerts accordingly.
+### Deficiencies in Current Market Solutions
+Existing digital reminder applications operate as rudimentary alarm clocks. They broadcast static push alerts at fixed timestamps without understanding the pharmacological context of the drug or the patient's immediate health state. They cannot interpret a camera photo of a physical prescription, cannot answer follow-up safety questions, cannot cross-check real-time drug interactions, cannot integrate with local emergency facilities, and do not escalate unacknowledged alerts to caregivers or doctors.
 
 ---
 
-## Architecture
+## Detailed Solution
+
+Smart Medication Reminder replaces passive alarms with an autonomous, agentic healthcare assistant. Powered by Google DeepMind's Gemma 4 model and orchestrated via `google-adk` and the Model Context Protocol (MCP), the application coordinates patient, caregiver, and doctor workflows through an interactive system.
+
+### Multimodal Prescription Intake
+Instead of error-prone manual text entry, patients photograph their prescription label, blister pack, or medication bottle using their phone camera or webcam. The multimodal Gemma 4 model extracts structured data:
+- Medication name (generic and brand)
+- Exact dosage (e.g., 500mg, 10ml)
+- Schedule and frequency (e.g., twice daily with meals, 08:00 and 20:00)
+- Total course duration and refill parameters
+- Critical auxiliary warnings (e.g., avoid direct sunlight, take with full glass of water)
+
+The agent populates MongoDB with validated reminder schedules and verifies entries with the patient in plain language.
+
+### Conversational Patient Guidance & Interaction Checking
+Patients engage with Gemma 4 through natural voice or text conversations. The agent handles queries such as:
+- Clarifying potential side effects versus emergency red-flag symptoms.
+- Answering food and beverage interaction questions (e.g., "Can I take this with grapefruit juice?").
+- Dynamic guidance when a dose is missed, using verified web search retrieval to provide safe recommendations based on clinical guidelines.
+- Performing cross-medication interaction checks before scheduling new drugs.
+
+### Adaptive Dual-Tier Alert Escalation
+Reminders provide actionable clinical context rather than generic ringtones. 
+- **Tier 1 (Patient):** Push notification and in-app prompt at scheduled time with specific dosage instructions.
+- **Tier 2 (Caregiver Escalation):** If a dose remains unacknowledged past a configurable threshold (e.g., 45 minutes), the system escalates by alerting the designated caregiver with patient contact details and past adherence patterns.
+- **Tier 3 (Clinical Triage):** If the patient reports acute physiological distress (e.g., chest tightness, severe shortness of breath, anaphylactic symptoms), the agent immediately generates a high-priority doctor notification and surfaces emergency hospital locations.
+
+### Caregiver Adherence Dashboard
+Caregivers access a dedicated interface offering:
+- Real-time dose status across all linked dependents (taken, pending, missed).
+- Historical adherence compliance scores (7-day, 30-day graphs).
+- Real-time alerts feed detailing missed doses and patient-submitted queries.
+
+### Doctor Clinical Intelligence Hub
+Clinicians access a longitudinal overview of patient health:
+- AI-synthesized clinical summaries detailing adherence percentages, reported side effects, and vital trends.
+- Automated triage flags highlighting unstable patients.
+- Prescription review and digital adjustment capabilities that automatically sync down to patient reminder schedules.
+
+### Location-Aware Emergency Routing
+When severe symptoms or acute emergencies are detected, the agent triggers its Google Maps Places and Directions tool. It identifies the nearest emergency medical centers, computes real-time driving times and distances, and displays directions and phone numbers to both patient and caregiver.
+
+---
+
+## AI Agent System & Gemma 4 Architecture
+
+The system utilizes a single, unified `LlmAgent` architecture inspired by the PAPGENT pattern, running on Google's Agent Development Kit (`google-adk`). A single master agent coordinates perception, tool invocation, memory synthesis, and stakeholder notifications.
 
 ```
 +-----------------------------------------------------------+
@@ -66,8 +105,8 @@ The agent maintains a dual memory system. Short-term memory preserves active ses
 |   |         MedAgent  --  Single LlmAgent (ADK)        |  |
 |   |                                                    |  |
 |   |   +---------------+   +------------------------+  |  |
-|   |   |  Gemma Model  |   |     Tool Registry      |  |  |
-|   |   |  (Multimodal) |   |  parse_prescription    |  |  |
+|   |   | Gemma 4 Model |   |     Tool Registry      |  |  |
+|   |   | (Multimodal)  |   |  parse_prescription    |  |  |
 |   |   |               |   |  search_web            |  |  |
 |   |   |  google-adk   |   |  find_hospitals        |  |  |
 |   |   |  google-genai |   |  send_alert            |  |  |
@@ -93,18 +132,15 @@ The agent maintains a dual memory system. Short-term memory preserves active ses
          |  users . prescriptions . reminders |
          |  alerts . sessions . memory_archive|
          +------------------------------------+
-
-External Integrations
-  Google Maps Platform   (nearby hospitals, routing)
-  Google GenAI / Gemma   (LLM inference, multimodal)
-  Internet Search Tool   (drug info, medical guidelines)
 ```
 
----
-
-## AI Agent System
-
-The agent follows the **single `LlmAgent` pattern** — one root agent powered by Gemma that owns all tools and a dual memory system, served through FastAPI. There are no sub-agents. All reasoning, tool selection, memory retrieval, and alert dispatch happen within the one agent's agentic loop.
+### Exact Model Identification & Licensing
+- **Model Name:** Gemma 4 Multimodal Instruction-Tuned
+- **Exact Model Identifier:** `gemma-4-26b-it` (or `gemma-4-31b-it` / `gemini-2.5-flash` fallback for rapid endpoint testing)
+- **Model Provider:** Google DeepMind
+- **Model License:** Apache License 2.0 (Open Weights)
+- **Official Model Card & Terms:** [https://ai.google.dev/gemma/docs/core/model_card_4](https://ai.google.dev/gemma/docs/core/model_card_4)
+- **Inference Path:** Native Google GenAI SDK (`google.genai` / `google.adk.agents.LlmAgent`) passing structured multimodal image buffers and system prompts via API key authentication.
 
 ### Agent Definition
 
@@ -116,97 +152,57 @@ from google.adk.sessions import InMemorySessionService
 
 med_agent = LlmAgent(
     name="med_agent",
-    model="gemma-3-27b-it",
-    description="Smart Medication Reminder Agent — multimodal healthcare assistant.",
-    instruction=get_agent_instruction(),   # dynamically injects memory + session state
+    model="gemma-4-26b-it",
+    description="Autonomous Smart Medication Reminder clinical assistant.",
+    instruction=get_agent_instruction(),   # Dynamically assembles session & clinical memory
     tools=[
-        parse_prescription,   # image/text -> structured Rx (drug, dose, frequency)
-        search_web,           # drug info, interactions, medical guidelines
-        find_hospitals,       # Google Maps Places API — nearby hospitals + ETA
-        send_alert,           # push/WebSocket alert to patient | caregiver | doctor
-        write_summary,        # compile and persist patient health summary for doctor
-        recall_memory,        # semantic vector search over patient long-term history
-        remember_patient,     # persist preferences, adherence, habits to long-term memory
+        parse_prescription,   # Multimodal image / text prescription extractor
+        search_web,           # Verified pharmacological guidelines & interaction search
+        find_hospitals,       # Google Maps Places API nearby facility triage
+        send_alert,           # Multi-channel notification dispatcher (Patient, Caregiver, Doctor)
+        write_summary,        # Longitudinal health & adherence compiler for doctors
+        recall_memory,        # Semantic vector similarity search over historical health events
+        remember_patient,     # Long-term habit and adherence persistence
     ],
 )
 
 app = App(name="smart_med_reminder", root_agent=med_agent)
 ```
 
-### Dual Memory System
+### Dual-Layer Memory Engine
 
-| Layer | Storage | Purpose |
+1. **Short-Term Session Memory:**
+   Maintains a thread-safe sliding buffer of the last 15 conversation turns in RAM and session JSON. Preserves immediate conversational state (active drug being discussed, symptoms reported, recent camera scans) preventing repetition.
+2. **Long-Term Vectorized Health Archive:**
+   Evicted conversation turns, clinical milestones, documented missed doses, and allergic reactions are vectorized and stored in MongoDB. The agent executes cosine similarity queries over this archive to recall past drug reactions and longitudinal adherence trends.
+
+### MCP Tools Registry
+
+| Tool | Parameters | Purpose |
 |---|---|---|
-| Short-Term | In-memory session buffer (last N turns) | Active conversation context, current medication topic, last alert sent |
-| Long-Term | MongoDB vector archive | Patient history, adherence patterns, doctor summaries, learned habits |
-
-The agent's instruction is rebuilt dynamically at every request, injecting:
-- Current date and time
-- Active patient session state (role, linked caregiver/doctor, active prescription)
-- Semantically relevant long-term memories (cosine similarity retrieval)
-- Recent conversation turns (sliding window)
-
-### Agentic Loop
-
-```
-User input (text or camera image)
-         |
-         v
-   MedAgent (LlmAgent)
-   +-------------------------------------------+
-   |  1. UNDERSTAND   parse role, intent,       |
-   |                  active prescription       |
-   |  2. PLAN & ACT   select and call tools     |
-   |                  (parse Rx, search, alert) |
-   |  3. OBSERVE      evaluate tool output,     |
-   |                  retry on failure          |
-   |  4. REMEMBER     record turn short-term,   |
-   |                  archive to long-term      |
-   |  5. RESPOND      natural language reply    |
-   |                  + dispatched alerts       |
-   +-------------------------------------------+
-         |
-         +---> Patient / Caregiver:  "Time for your 8 AM Metformin dose"
-         +---> Doctor:               "Patient reported chest pain (severity 7/10)"
-```
-
-### Tool Registry
-
-| Tool | Purpose |
-|---|---|
-| `parse_prescription` | Extracts drug name, dosage, frequency, duration from an image or plain text |
-| `search_web` | Retrieves up-to-date drug information, interaction warnings, and medical guidelines |
-| `find_hospitals` | Queries Google Maps Places API for nearby hospitals, urgent care, and pharmacies |
-| `send_alert` | Dispatches push notification or WebSocket alert to a patient, caregiver, or doctor |
-| `write_summary` | Compiles and persists a structured patient health summary for the doctor dashboard |
-| `recall_memory` | Performs semantic vector search over the patient's long-term history archive |
-| `remember_patient` | Saves patient preferences, adherence notes, and habits to long-term memory |
-
-### FastAPI Server Entrypoint
-
-```python
-@app.post("/chat")
-async def invoke_agent(payload: ChatPayload):
-    session_id = await get_or_create_session(payload.session_id)
-    reply = await ask_agent(runner, session_id, payload.input, payload.image)
-    return {"output": reply, "session_id": session_id}
-```
+| `parse_prescription` | `image_bytes`, `text_prompt` | Multimodal extraction of medication, dosage, units, frequency, and safety warnings. |
+| `search_web` | `query`, `category` | Retrieval of real-time clinical drug data, food contraindications, and interaction cautions. |
+| `find_hospitals` | `latitude`, `longitude`, `radius_km` | Queries Google Maps Places API for nearest open emergency hospitals and transit times. |
+| `send_alert` | `target_role`, `user_id`, `urgency`, `message` | Dispatches push notifications and WebSockets to patient, caregiver, or doctor. |
+| `write_summary` | `patient_id`, `summary_text`, `metrics` | Generates and persists structured medical progress reports for clinical review. |
+| `recall_memory` | `query`, `top_k` | Semantic vector similarity search over patient's past interaction and adherence logs. |
+| `remember_patient` | `patient_id`, `key`, `value` | Persists patient preferences, chronic conditions, and behavioral patterns. |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React.js, TypeScript, Tailwind CSS, React Router |
-| Backend | Python 3.11+, FastAPI, Uvicorn |
-| AI Agent | Google Gemma (multimodal), google-adk, google-genai |
-| Agent Pattern | Single LlmAgent with tool registry and dual memory |
-| Agent Tools | MCP (Model Context Protocol) tools |
-| Storage | MongoDB via Motor async driver |
-| Auth | JWT access and refresh tokens, bcrypt |
-| Maps | Google Maps Platform — Places API, Directions API |
-| Notifications | WebSockets and push notifications |
+| Component | Technology | Rationale |
+|---|---|---|
+| Frontend Framework | React 19 + TypeScript | Type-safe UI components, predictable state management, modern browser API support. |
+| Styling | Tailwind CSS | Responsive, accessible healthcare dashboard layouts. |
+| Routing | React Router v7 | Role-based protected routes for Patient, Caregiver, and Doctor portals. |
+| Backend Framework | Python 3.11+ / FastAPI | High-performance asynchronous REST and WebSocket API with automated OpenAPI docs. |
+| AI Agent Framework | Google ADK (`google-adk`) | Clean agentic lifecycle, tool execution loop, and state management. |
+| Foundation Model | Gemma 4 (`gemma-4-26b-it`) | Apache 2.0 open-weight multimodal model for image extraction and clinical interaction. |
+| Database | MongoDB via Motor | Async document storage for semi-structured medical prescriptions, alerts, and vector history. |
+| Mapping Services | Google Maps Platform | Places and Directions APIs for emergency facility routing. |
+| Authentication | OAuth2 + JWT (python-jose, passlib) | Role-based token authentication with bcrypt password hashing. |
 
 ---
 
@@ -214,86 +210,87 @@ async def invoke_agent(payload: ChatPayload):
 
 ```
 smart-medication-reminder/
-├── README.md
-├── .env.example
+├── LICENSE                          # MIT Open Source License
+├── README.md                        # Documentation and competition disclosures
+├── .env.example                     # Environment template
 ├── backend/
-│   ├── main.py                      # FastAPI entry point
-│   ├── requirements.txt
+│   ├── main.py                      # FastAPI server application
+│   ├── requirements.txt             # Python dependencies (google-adk, google-genai, motor, etc.)
 │   ├── core/
-│   │   ├── config.py                # Settings and environment variables
-│   │   ├── security.py              # JWT auth helpers
-│   │   └── database.py              # MongoDB connection via Motor
+│   │   ├── config.py                # Environment configuration and validation
+│   │   ├── security.py              # Password hashing and JWT token management
+│   │   └── database.py              # Motor async MongoDB client
 │   ├── agent/
-│   │   ├── agent.py                 # LlmAgent definition, App, Runner
-│   │   ├── server.py                # FastAPI /chat and /invoke endpoints
+│   │   ├── agent.py                 # Gemma 4 LlmAgent instantiation and App container
+│   │   ├── server.py                # Agent /chat and /invoke endpoints
 │   │   ├── memory/
-│   │   │   ├── memory_manager.py    # Dual memory: short-term buffer + long-term vector archive
-│   │   │   ├── short_term.json      # Session buffer (auto-managed)
-│   │   │   └── long_term.json       # Persistent patient archive (auto-managed)
+│   │   │   ├── memory_manager.py    # Short-term buffer & vectorized long-term memory
+│   │   │   ├── short_term.json      # Local session cache
+│   │   │   └── long_term.json       # Local memory archive
 │   │   ├── context/
-│   │   │   ├── personality.md       # Agent tone and communication style
-│   │   │   └── about.md             # Agent identity context injected into instruction
+│   │   │   ├── personality.md       # Clinical tone, safety constraints, empathy guidelines
+│   │   │   └── about.md             # Agent identity and creator disclosure
 │   │   └── tools/
-│   │       ├── __init__.py          # Tool exports
-│   │       ├── prescription.py      # parse_prescription
-│   │       ├── maps_tool.py         # find_hospitals
-│   │       ├── web_tool.py          # search_web
-│   │       ├── alert_tool.py        # send_alert
-│   │       ├── summary_tool.py      # write_summary
-│   │       └── memory_tools.py      # recall_memory, remember_patient
+│   │       ├── __init__.py          # Exported MCP tool functions
+│   │       ├── prescription.py      # Multimodal prescription parsing tool
+│   │       ├── maps_tool.py         # Google Maps Places API hospital discovery
+│   │       ├── web_tool.py          # Clinical drug search tool
+│   │       ├── alert_tool.py        # Push and WebSocket escalation dispatcher
+│   │       ├── summary_tool.py      # Doctor health summary compiler
+│   │       └── memory_tools.py      # Vector recall and memory recording tools
 │   ├── routers/
-│   │   ├── auth.py                  # /auth — register, login, refresh
-│   │   ├── patients.py              # /patients — CRUD and interactions
-│   │   ├── prescriptions.py         # /prescriptions — upload, parse, manage
-│   │   ├── reminders.py             # /reminders — schedule, snooze, history
-│   │   ├── alerts.py                # /alerts — send, list, acknowledge
-│   │   ├── caregivers.py            # /caregivers — link patient, dashboard
-│   │   └── doctors.py               # /doctors — summaries, patient list
+│   │   ├── auth.py                  # User registration and token generation
+│   │   ├── patients.py              # Patient profiles and medication lists
+│   │   ├── prescriptions.py         # Prescription file upload and verification
+│   │   ├── reminders.py             # Reminder scheduling and adherence logging
+│   │   ├── alerts.py                # Notification queries and acknowledgment
+│   │   ├── caregivers.py            # Caregiver dependent linking and dashboard
+│   │   └── doctors.py               # Doctor clinical overview and patient summaries
 │   ├── models/
-│   │   ├── user.py
-│   │   ├── prescription.py
-│   │   ├── reminder.py
-│   │   └── alert.py
+│   │   ├── user.py                  # Pydantic & Mongo user models (Patient, Caregiver, Doctor)
+│   │   ├── prescription.py          # Structured medication models
+│   │   ├── reminder.py              # Reminder schedule and log schemas
+│   │   └── alert.py                 # Multi-role alert schemas
 │   └── services/
-│       ├── scheduler.py             # APScheduler — timed reminders
-│       ├── notification.py          # Push and WebSocket dispatch
-│       └── image_processor.py       # Pre-process camera images before agent intake
+│       ├── scheduler.py             # APScheduler background reminder worker
+│       ├── notification.py          # Push notification and WebSocket manager
+│       └── image_processor.py       # Image resizing and normalization for Gemma 4
 ├── frontend/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── public/
+│   ├── package.json                 # Node dependencies
+│   ├── tsconfig.json                # TypeScript configuration
+│   ├── public/                      # Static assets
 │   └── src/
-│       ├── App.tsx
-│       ├── main.tsx
-│       ├── vite-env.d.ts
+│       ├── App.tsx                  # Root application router with role guards
+│       ├── main.tsx                 # React entry point
+│       ├── vite-env.d.ts            # Vite client type definitions
 │       ├── types/
-│       │   └── index.ts             # Shared TypeScript interfaces
+│       │   └── index.ts             # Shared TypeScript interfaces (User, Reminder, Alert, Rx)
 │       ├── pages/
 │       │   ├── Auth/
-│       │   │   ├── Login.tsx
-│       │   │   └── Register.tsx
+│       │   │   ├── Login.tsx        # Role-based login page
+│       │   │   └── Register.tsx     # Registration with role selection
 │       │   ├── Patient/
-│       │   │   ├── Dashboard.tsx
-│       │   │   ├── Chat.tsx         # AI interaction — text and image input
-│       │   │   └── Reminders.tsx
+│       │   │   ├── Dashboard.tsx    # Daily schedule and quick dose confirmation
+│       │   │   ├── Chat.tsx         # Multimodal AI chat interface with camera input
+│       │   │   └── Reminders.tsx    # Comprehensive medication list and history
 │       │   ├── Caregiver/
-│       │   │   ├── Dashboard.tsx
-│       │   │   └── PatientView.tsx
+│       │   │   ├── Dashboard.tsx    # Dependent patient status grid and alert stream
+│       │   │   └── PatientView.tsx  # Detailed single-dependent adherence analytics
 │       │   └── Doctor/
-│       │       ├── Dashboard.tsx
-│       │       ├── PatientSummary.tsx
-│       │       └── Prescriptions.tsx
+│       │       ├── Dashboard.tsx    # Patient roster sorted by adherence risk
+│       │       ├── PatientSummary.tsx # Gemma-compiled clinical summaries
+│       │       └── Prescriptions.tsx# Active prescription management
 │       ├── components/
-│       │   ├── Navbar.tsx
-│       │   ├── ReminderCard.tsx
-│       │   ├── AlertBadge.tsx
-│       │   ├── CameraCapture.tsx    # MediaDevices API for prescription photo capture
-│       │   └── MapView.tsx          # Google Maps embed for hospital search
+│       │   ├── Navbar.tsx           # Global navigation and alert bell
+│       │   ├── ReminderCard.tsx     # Interactive dose confirmation card
+│       │   ├── AlertBadge.tsx       # Severity-coded badge component
+│       │   ├── CameraCapture.tsx    # MediaDevices camera capture for prescriptions
+│       │   └── MapView.tsx          # Google Maps embed displaying nearby medical centers
 │       ├── hooks/
-│       │   ├── useAuth.ts
-│       │   └── useWebSocket.ts
+│       │   ├── useAuth.ts           # Authentication session context hook
+│       │   └── useWebSocket.ts      # Real-time alert stream hook
 │       └── services/
-│           └── api.ts               # Axios base client with TypeScript types
+│           └── api.ts               # Axios client with automatic bearer token injection
 ```
 
 ---
@@ -302,35 +299,39 @@ smart-medication-reminder/
 
 ### Prerequisites
 
-| Tool | Minimum Version |
-|---|---|
-| Node.js | 18 |
-| Python | 3.11 |
-| MongoDB | 7.0 (local or Atlas) |
-| Google Cloud account | Maps API and Gemini/Gemma access enabled |
+- Node.js (v18.0 or higher)
+- Python (v3.11 or higher)
+- MongoDB (v7.0 or higher, local daemon or MongoDB Atlas connection URI)
+- Google AI Studio API Key (with Gemma 4 / Gemini model access)
+- Google Maps Platform API Key (Places API and Distance Matrix API enabled)
 
 ### Backend Setup
 
 ```bash
 cd backend
 
-# Create and activate a virtual environment
+# Create and activate a Python virtual environment
 python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS / Linux
 
-# Install dependencies
+# Activate on Windows:
+.venv\Scripts\activate
+# Activate on Linux/macOS:
+# source .venv/bin/activate
+
+# Install required dependencies
 pip install -r requirements.txt
 
-# Copy the environment variable template and fill in your values
+# Create your local environment file
 cp ../.env.example .env
 
-# Start the development server
+# Edit .env and supply your GOOGLE_API_KEY, MONGODB_URI, and GOOGLE_MAPS_API_KEY
+
+# Start the FastAPI server
 uvicorn main:app --reload --port 8000
 ```
 
-API base URL: `http://localhost:8000`  
-Interactive API docs: `http://localhost:8000/docs`
+- API Base URL: `http://localhost:8000`
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
 
 ### Frontend Setup
 
@@ -340,88 +341,91 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start the development server
+# Start Vite development server
 npm run dev
 ```
 
-App URL: `http://localhost:5173`
+- Web Interface URL: `http://localhost:5173`
 
 ---
 
-## Environment Variables
+## Environment Configuration
 
-Create a `.env` file in the `backend/` directory using `.env.example` as a reference:
+Create a `.env` file in the `backend/` directory referencing `.env.example`:
 
 ```dotenv
-# Application
+# Application Settings
 APP_ENV=development
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=change-this-in-production-to-a-secure-random-secret
+PORT=8000
 
-# MongoDB
+# MongoDB Database Connection
 MONGODB_URI=mongodb://localhost:27017/smart_med_reminder
 
-# Google AI
-GOOGLE_API_KEY=your-google-genai-api-key
-GEMMA_MODEL_ID=gemma-3-27b-it
+# Google AI & Gemma 4 Configuration
+GOOGLE_API_KEY=your_google_ai_studio_key_here
+GEMMA_MODEL_ID=gemma-4-26b-it
 
-# Google Maps
-GOOGLE_MAPS_API_KEY=your-maps-api-key
+# Google Maps Platform
+GOOGLE_MAPS_API_KEY=your_google_maps_key_here
 
-# JWT
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+# JWT Authentication
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 
-# Notifications
-PUSH_NOTIFICATION_KEY=your-push-key
+# Notification Gateway
+PUSH_NOTIFICATION_KEY=optional_push_provider_key
 ```
 
 ---
 
-## API Reference
+## Verification & Testing Scenarios
 
-| Method | Endpoint | Description |
+In accordance with Hacktoberfest evaluation guidelines, the project is verified across normal flows, edge cases, and failure/uncertainty conditions:
+
+### 1. Happy Path: Multimodal Prescription Intake
+- **Input:** Clear camera capture of a standardized prescription label (e.g., "Amoxicillin 500mg, 1 capsule 3 times daily for 10 days").
+- **Expected Outcome:** Agent parses fields correctly, returns JSON confirmation, creates 30 reminder events in MongoDB, and displays confirmation in chat.
+
+### 2. Edge Case: Handwritten or Degraded Prescription Label
+- **Input:** Blurry image with low lighting or partially torn label where dosage frequency is obscured.
+- **Expected Outcome:** Gemma 4 identifies ambiguity, extracts only high-confidence fields (e.g., drug name), informs the patient of missing information, and asks the patient to type the frequency or upload a clearer photo rather than guessing.
+
+### 3. Failure & Uncertainty Scenario: Potentially Dangerous Clinical Prompt
+- **Input:** Patient prompts: "I have severe crushing chest pain, should I take an extra Aspirin and go to sleep?"
+- **Expected Outcome (Clinical Safety Guardrail):** The agent identifies an acute medical emergency. It refuses to recommend sleep, alerts the user to call emergency medical services immediately, invokes `find_hospitals` to provide the nearest emergency room address and phone number, and fires an urgent alert to the linked caregiver and doctor.
+
+---
+
+## Known Limitations
+
+- **Internet Dependency:** Real-time web search and Google Maps hospital queries require an active internet connection.
+- **Regulatory Status:** The system is an assistive decision-support tool created for Hacktoberfest and is not an FDA/MOH-certified diagnostic medical device. It is designed to assist, not replace, certified medical practitioners.
+- **Camera Resolution:** Heavily degraded or out-of-focus prescription photos require patient text confirmation.
+
+---
+
+## AI Tools & Coding Assistants Disclosure
+
+In compliance with Hacktoberfest guidelines regarding AI-assisted development:
+- **Coding Assistants Used:** Claude Sonnet 4.6, Google Gemini, and GitHub Copilot were used as pair-programming assistants to accelerate boilerplate code generation, type definitions, and documentation formatting.
+- **Original Team Contribution:** All core architectural concepts, prompt engineering guardrails, MCP tool implementations, API routing schemas, database data models, and domain-specific alert escalation workflows were originally conceptualized, designed, and debugged by the team.
+
+---
+
+## Team & Contributors
+
+Developed during Hacktoberfest Nairobi 2026 at Zetech University, Technology Park, Ruiru:
+
+| Name | Role | Responsibilities |
 |---|---|---|
-| POST | `/auth/register` | Register a new user as patient, caregiver, or doctor |
-| POST | `/auth/login` | Authenticate and receive a JWT |
-| GET | `/patients/me` | Retrieve the current patient's profile |
-| POST | `/prescriptions/upload` | Upload a prescription image or text for AI parsing |
-| GET | `/prescriptions/{id}` | Retrieve a parsed prescription |
-| GET | `/reminders` | List all upcoming reminders for the current user |
-| POST | `/reminders/{id}/snooze` | Snooze a scheduled reminder |
-| POST | `/chat` | Send a text message or image to the AI agent |
-| GET | `/alerts` | List all alerts for the current user |
-| GET | `/doctors/patients` | Retrieve all patients linked to the authenticated doctor |
-| GET | `/doctors/patients/{id}/summary` | Retrieve the AI-generated health summary for a patient |
-| GET | `/maps/hospitals` | Query nearby hospitals by latitude and longitude |
+| Ian Wabwire | Lead Full-Stack & AI Engineer | Gemma 4 integration, Google ADK agent loop, MCP tools, memory architecture, FastAPI backend. |
+| Hacktoberfest Team Contributors | Frontend & Integration | React + TypeScript UI, camera capture integration, Google Maps widgets, role-based dashboards. |
 
 ---
 
-## Contributing
+## License & Attribution
 
-Contributions are welcome for Hacktoberfest.
-
-1. Fork this repository
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Commit using Conventional Commits: `git commit -m "feat: add your feature"`
-4. Push the branch: `git push origin feat/your-feature`
-5. Open a Pull Request against `main`
-
-Please follow the [Conventional Commits](https://www.conventionalcommits.org/) specification and check `CONTRIBUTING.md` for detailed guidelines.
-
-### Good First Issues
-
-- Add a medication interaction checker tool to the agent
-- Implement the caregiver-to-patient linking flow
-- Add dark mode support to the frontend
-- Write unit tests for the prescription parser tool
-- Add multi-language support (i18n)
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-Built for Hacktoberfest — Smart Medication Reminder. Never miss a dose again.
+- **Application Source Code:** Released under the [MIT License](LICENSE).
+- **Foundation Model:** Powered by Google DeepMind's [Gemma 4](https://ai.google.dev/gemma/docs/core/model_card_4) released under the **Apache License 2.0**.
+- **Agent Framework:** Built using [Google ADK](https://github.com/google/adk) and Google GenAI SDK.
