@@ -7,56 +7,7 @@ from backend.core.security import get_current_user_token_payload
 
 router = APIRouter(prefix="/reminders", tags=["Reminders"])
 
-_MEM_REMINDERS: List[dict] = [
-    {
-        "id": "rem_001",
-        "patient_id": "p_001",
-        "prescription_id": "rx_001",
-        "medication_name": "Amoxicillin",
-        "dosage": "500mg",
-        "scheduled_time": datetime.utcnow().replace(hour=8, minute=0, second=0),
-        "instructions": "Take with a full glass of water",
-        "status": ReminderStatus.TAKEN.value,
-        "taken_at": datetime.utcnow().replace(hour=8, minute=5, second=0),
-        "created_at": datetime.utcnow()
-    },
-    {
-        "id": "rem_002",
-        "patient_id": "p_001",
-        "prescription_id": "rx_001",
-        "medication_name": "Metformin",
-        "dosage": "500mg",
-        "scheduled_time": datetime.utcnow().replace(hour=8, minute=0, second=0),
-        "instructions": "Take with food",
-        "status": ReminderStatus.TAKEN.value,
-        "taken_at": datetime.utcnow().replace(hour=8, minute=6, second=0),
-        "created_at": datetime.utcnow()
-    },
-    {
-        "id": "rem_003",
-        "patient_id": "p_001",
-        "prescription_id": "rx_001",
-        "medication_name": "Amoxicillin",
-        "dosage": "500mg",
-        "scheduled_time": datetime.utcnow().replace(hour=14, minute=0, second=0),
-        "instructions": "Take with a full glass of water",
-        "status": ReminderStatus.PENDING.value,
-        "taken_at": None,
-        "created_at": datetime.utcnow()
-    },
-    {
-        "id": "rem_004",
-        "patient_id": "p_001",
-        "prescription_id": "rx_001",
-        "medication_name": "Metformin",
-        "dosage": "500mg",
-        "scheduled_time": datetime.utcnow().replace(hour=20, minute=0, second=0),
-        "instructions": "Take with dinner",
-        "status": ReminderStatus.PENDING.value,
-        "taken_at": None,
-        "created_at": datetime.utcnow()
-    }
-]
+_MEM_REMINDERS: List[dict] = []
 
 
 @router.get("", response_model=List[ReminderResponse])

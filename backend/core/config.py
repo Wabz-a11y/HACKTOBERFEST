@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     TALKSASA_API_KEY: str = ""
     TALKSASA_SENDER_ID: str = "TALKSASA"
     TALKSASA_API_URL: str = "https://bulksms.talksasa.com/api/v3/sms/send"
-    SUPPORT_PHONE: str = "+254702723281"
+    SUPPORT_PHONE: str = ""
     
     # JWT Authentication
     JWT_SECRET_KEY: str = "smart-medication-reminder-jwt-secret-key-2026-hacktoberfest"

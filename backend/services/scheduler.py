@@ -14,37 +14,43 @@ _running: bool = False
 
 async def check_pending_reminders():
     """
-    Periodic check verifying elapsed reminders, broadcasting WebSocket alerts,
-    and triggering TalkSasa SMS escalation to caregivers if unacknowledged.
+    Periodic check verifying elapsed reminders and broadcasting WebSocket alerts.
+    If TalkSasa API key and caregiver phone are configured, dispatches SMS escalation.
     """
     now = datetime.utcnow()
     for rem in _MEM_REMINDERS:
-        if rem["status"] == ReminderStatus.PENDING.value:
-            scheduled = rem["scheduled_time"]
+        if rem.get("status") == ReminderStatus.PENDING.value:
+            scheduled = rem.get("scheduled_time")
+            if not scheduled:
+                continue
             diff_seconds = (now - scheduled).total_seconds()
             
-            # Reminder due window
-            if diff_seconds > 0:
-                logger.info(f"Triggering scheduled alert for medication {rem['medication_name']}")
+            # Reminder due window (within 5 minutes of scheduled time)
+            if 0 < diff_seconds <= 300 and not rem.get("notified"):
+                rem["notified"] = True
+                logger.info(f"Triggering scheduled alert for medication {rem.get('medication_name')}")
                 await notification_manager.send_personal_message(
                     {
                         "type": "MEDICATION_REMINDER",
-                        "reminder_id": rem["id"],
-                        "medication": rem["medication_name"],
-                        "dosage": rem["dosage"],
+                        "reminder_id": rem.get("id"),
+                        "medication": rem.get("medication_name"),
+                        "dosage": rem.get("dosage"),
                         "instructions": rem.get("instructions")
                     },
-                    user_id=rem["patient_id"]
+                    user_id=rem.get("patient_id")
                 )
 
-                # If overdue by more than 30 minutes, escalate to caregiver via TalkSasa SMS
-                if diff_seconds > 1800 and not rem.get("sms_escalated"):
-                    rem["sms_escalated"] = True
-                    target_phone = settings.SUPPORT_PHONE or "+254702723281"
+            # If overdue by more than 30 minutes, escalate to caregiver via SMS if configured
+            if diff_seconds > 1800 and not rem.get("sms_escalated"):
+                rem["sms_escalated"] = True
+                target_phone = rem.get("caregiver_phone") or settings.SUPPORT_PHONE
+                patient_name = rem.get("patient_name") or "Patient"
+
+                if settings.TALKSASA_API_KEY and target_phone:
                     send_caregiver_sms_alert(
                         phone=target_phone,
-                        patient_name="Sarah Wanjiku",
-                        dose_name=f"{rem['medication_name']} ({rem['dosage']})",
+                        patient_name=patient_name,
+                        dose_name=f"{rem.get('medication_name')} ({rem.get('dosage')})",
                         urgency="Missed Dose Escalation"
                     )
 

@@ -7,47 +7,7 @@ from backend.core.security import get_current_user_token_payload
 
 router = APIRouter(prefix="/alerts", tags=["Alerts"])
 
-_MEM_ALERTS: List[dict] = [
-    {
-        "id": "alt_001",
-        "recipient_id": "c_001",
-        "recipient_role": "caregiver",
-        "patient_id": "p_001",
-        "patient_name": "Sarah Wanjiku",
-        "severity": AlertSeverity.INFO.value,
-        "title": "Morning Dose Confirmed",
-        "message": "Sarah took Amoxicillin 500mg and Metformin 500mg on schedule at 08:05 AM.",
-        "action_url": None,
-        "acknowledged": True,
-        "created_at": datetime.utcnow()
-    },
-    {
-        "id": "alt_002",
-        "recipient_id": "c_001",
-        "recipient_role": "caregiver",
-        "patient_id": "p_001",
-        "patient_name": "Sarah Wanjiku",
-        "severity": AlertSeverity.WARNING.value,
-        "title": "Upcoming Midday Antibiotic",
-        "message": "Reminder: Midday Amoxicillin 500mg is scheduled for 02:00 PM.",
-        "action_url": None,
-        "acknowledged": False,
-        "created_at": datetime.utcnow()
-    },
-    {
-        "id": "alt_003",
-        "recipient_id": "d_001",
-        "recipient_role": "doctor",
-        "patient_id": "p_001",
-        "patient_name": "Sarah Wanjiku",
-        "severity": AlertSeverity.INFO.value,
-        "title": "Adherence Stability Notice",
-        "message": "Patient adherence score is 100% over the last 24 hours. No adverse reactions logged.",
-        "action_url": None,
-        "acknowledged": False,
-        "created_at": datetime.utcnow()
-    }
-]
+_MEM_ALERTS: List[dict] = []
 
 
 @router.get("", response_model=List[AlertResponse])

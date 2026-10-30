@@ -20,8 +20,8 @@ def send_sms_sync(phone: str, message: str) -> Dict[str, Any]:
     url = f"{base_url}/sms/send"
 
     if not api_key:
-        logger.info(f"[TALKSASA] TALKSASA_API_KEY not configured — logged SMS to {phone}: '{message[:80]}...'")
-        return {"success": False, "simulated": True, "message": "TALKSASA_API_KEY not configured; logged locally."}
+        logger.debug(f"[TALKSASA] TALKSASA_API_KEY not configured — skipping SMS to {phone}")
+        return {"success": False, "simulated": True, "message": "TALKSASA_API_KEY not configured"}
 
     if not sender_id:
         logger.warning("[TALKSASA] TALKSASA_SENDER_ID not configured — skipping SMS.")

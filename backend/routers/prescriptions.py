@@ -8,39 +8,7 @@ from backend.agent.tools.prescription import parse_prescription
 
 router = APIRouter(prefix="/prescriptions", tags=["Prescriptions"])
 
-_MEM_PRESCRIPTIONS: List[dict] = [
-    {
-        "id": "rx_001",
-        "patient_id": "p_001",
-        "doctor_id": "d_001",
-        "source": "camera",
-        "raw_text": "Amoxicillin 500mg, Metformin 500mg",
-        "image_url": None,
-        "medications": [
-            {
-                "drug_name": "Amoxicillin",
-                "dosage": "500mg",
-                "frequency": "Three times daily",
-                "times": ["08:00", "14:00", "20:00"],
-                "duration_days": 10,
-                "instructions": "Take with a full glass of water",
-                "warnings": "Complete full antibiotic course"
-            },
-            {
-                "drug_name": "Metformin",
-                "dosage": "500mg",
-                "frequency": "Twice daily",
-                "times": ["08:00", "20:00"],
-                "duration_days": 30,
-                "instructions": "Take with meals",
-                "warnings": "Do not skip meals"
-            }
-        ],
-        "notes": "Verified by Dr. Angela Omondi",
-        "created_at": datetime.utcnow(),
-        "verified": True
-    }
-]
+_MEM_PRESCRIPTIONS: List[dict] = []
 
 
 @router.get("", response_model=List[PrescriptionResponse])
