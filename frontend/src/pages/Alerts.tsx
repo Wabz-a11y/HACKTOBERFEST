@@ -3,10 +3,12 @@ import { Alert } from '../types';
 import { alertsApi } from '../services/api';
 import { AlertBadge } from '../components/AlertBadge';
 import { Bell, Check, ShieldAlert } from 'lucide-react';
+import { useNotifications } from '../hooks/useNotifications';
 
 export const AlertsPage: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
+  const { refreshNotifications } = useNotifications();
 
   useEffect(() => {
     fetchAlerts();
@@ -27,6 +29,7 @@ export const AlertsPage: React.FC = () => {
     try {
       await alertsApi.acknowledge(id);
       fetchAlerts();
+      await refreshNotifications();
     } catch (e) {
       console.error(e);
     }
@@ -94,4 +97,3 @@ export const AlertsPage: React.FC = () => {
     </div>
   );
 };
-

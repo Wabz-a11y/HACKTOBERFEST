@@ -9,6 +9,8 @@ export interface User {
   caregiver_id?: string;
   doctor_id?: string;
   emergency_contact?: string;
+  profile_picture?: string;
+  notifications_enabled?: boolean;
 }
 
 export interface MedicationItem {
@@ -61,6 +63,8 @@ export interface Alert {
   message: string;
   action_url?: string;
   acknowledged: boolean;
+  starred: boolean;
+  deleted?: boolean;
   created_at: string;
 }
 
@@ -76,4 +80,3 @@ export interface HospitalFacility {
   google_maps_url?: string;
   directions_url?: string;
 }
-

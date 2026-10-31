@@ -12,6 +12,8 @@ import { PatientReminders } from './pages/Patient/Reminders';
 import { CaregiverDashboard } from './pages/Caregiver/Dashboard';
 import { DoctorDashboard } from './pages/Doctor/Dashboard';
 import { AlertsPage } from './pages/Alerts';
+import { Profile } from './pages/Profile';
+import { NotificationProvider } from './hooks/useNotifications';
 
 const RoleBasedHome: React.FC = () => {
   const { user } = useAuth();
@@ -45,6 +47,7 @@ const MainLayout: React.FC = () => {
             <Route path="/chat" element={<ProtectedRoute><PatientChat /></ProtectedRoute>} />
             <Route path="/prescriptions" element={<ProtectedRoute><PatientReminders /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
@@ -55,13 +58,15 @@ const MainLayout: React.FC = () => {
 
 export const App: React.FC = () => (
   <AuthProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/*" element={<MainLayout />} />
-      </Routes>
-    </BrowserRouter>
+    <NotificationProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/*" element={<MainLayout />} />
+        </Routes>
+      </BrowserRouter>
+    </NotificationProvider>
   </AuthProvider>
 );
 

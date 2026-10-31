@@ -11,6 +11,7 @@ import {
   Stethoscope,
   ChevronLeft,
   ChevronRight,
+  UserRound,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -111,6 +112,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
     ];
   }
 
+  navItems.push({
+    name: 'Profile',
+    to: '/profile',
+    icon: UserRound,
+    color: 'text-slate-600',
+  });
+
   const isItemActive = (to: string) => {
     if (to === '/') {
       return location.pathname === '/';
@@ -197,4 +205,3 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
     </aside>
   );
 };
-

@@ -2,7 +2,7 @@ from datetime import datetime
 import uuid
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, Any
-from backend.models.user import UserCreate, UserLogin, UserResponse, TokenResponse
+from backend.models.user import UserCreate, UserLogin, UserResponse, TokenResponse, UserUpdate, PasswordUpdate
 from backend.core.security import get_password_hash, verify_password, create_access_token, get_current_user_token_payload, rehash_if_needed
 from backend.core.database import get_database
 
@@ -157,3 +157,60 @@ async def get_me(token_payload: Dict[str, Any] = Depends(get_current_user_token_
         return UserResponse(**doc)
 
     raise HTTPException(status_code=404, detail="User not found.")
+
+
+def _public_user(doc: Dict[str, Any]) -> UserResponse:
+    return UserResponse(**doc)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    updates: UserUpdate,
+    token_payload: Dict[str, Any] = Depends(get_current_user_token_payload),
+):
+    user_id = token_payload.get("sub")
+    database = get_database()
+
+    if database is not None:
+        doc = await database.users.find_one({"id": user_id})
+        if not doc:
+            raise HTTPException(status_code=404, detail="User not found.")
+        changes = {key: value for key, value in updates.model_dump(exclude_unset=True).items() if value is not None}
+        if updates.notifications_enabled is not None:
+            changes["notifications_enabled"] = updates.notifications_enabled
+        if updates.profile_picture is not None:
+            changes["profile_picture"] = updates.profile_picture
+        if changes:
+            await database.users.update_one({"id": user_id}, {"$set": changes})
+            doc.update(changes)
+        return _public_user(doc)
+
+    doc = _mem_find_user_by_id(user_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="User not found.")
+    for key, value in updates.model_dump(exclude_unset=True).items():
+        if value is not None:
+            doc[key] = value
+    return _public_user(doc)
+
+
+@router.post("/change-password")
+async def change_password(
+    password_update: PasswordUpdate,
+    token_payload: Dict[str, Any] = Depends(get_current_user_token_payload),
+):
+    user_id = token_payload.get("sub")
+    database = get_database()
+
+    doc = await database.users.find_one({"id": user_id}) if database is not None else _mem_find_user_by_id(user_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="User not found.")
+    if not verify_password(password_update.current_password, doc["hashed_password"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect.")
+
+    new_hash = get_password_hash(password_update.new_password)
+    if database is not None:
+        await database.users.update_one({"id": user_id}, {"$set": {"hashed_password": new_hash}})
+    else:
+        doc["hashed_password"] = new_hash
+    return {"message": "Password changed successfully."}

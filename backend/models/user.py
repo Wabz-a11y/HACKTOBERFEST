@@ -15,6 +15,8 @@ class UserBase(BaseModel):
     full_name: str
     role: UserRole
     phone: Optional[str] = None
+    profile_picture: Optional[str] = None
+    notifications_enabled: bool = True
 
 
 class UserCreate(UserBase):
@@ -52,3 +54,15 @@ class UserInDB(UserBase):
     emergency_contact: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    profile_picture: Optional[str] = None
+    notifications_enabled: Optional[bool] = None
+
+
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=6)

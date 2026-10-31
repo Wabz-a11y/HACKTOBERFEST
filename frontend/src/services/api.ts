@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { User, Reminder, Prescription, Alert } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_BASE,
@@ -18,7 +18,6 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Auth API
 export const authApi = {
   login: async (email: string, password: string) => {
     const res = await apiClient.post('/auth/login', { email, password });
@@ -32,9 +31,19 @@ export const authApi = {
     const res = await apiClient.get('/auth/me');
     return res.data;
   },
+  updateProfile: async (data: any): Promise<User> => {
+    const res = await apiClient.patch('/auth/me', data);
+    return res.data;
+  },
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const res = await apiClient.post('/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    return res.data;
+  },
 };
 
-// Reminders API
 export const remindersApi = {
   list: async (patientId?: string): Promise<Reminder[]> => {
     const res = await apiClient.get('/reminders', { params: { patient_id: patientId } });
@@ -54,7 +63,6 @@ export const remindersApi = {
   },
 };
 
-// Prescriptions API
 export const prescriptionsApi = {
   list: async (): Promise<Prescription[]> => {
     const res = await apiClient.get('/prescriptions');
@@ -70,19 +78,29 @@ export const prescriptionsApi = {
   },
 };
 
-// Alerts API
 export const alertsApi = {
   list: async (): Promise<Alert[]> => {
     const res = await apiClient.get('/alerts');
     return res.data;
   },
   acknowledge: async (id: string): Promise<Alert> => {
-    const res = await apiClient.patch(`/alerts/${id}/acknowledge`);
+    const res = await apiClient.patch(`/alerts/${id}/acknowledge`, {});
+    return res.data;
+  },
+  markAllRead: async () => {
+    const res = await apiClient.patch('/alerts/read-all', {});
+    return res.data;
+  },
+  toggleStar: async (id: string): Promise<Alert> => {
+    const res = await apiClient.patch(`/alerts/${id}/star`, {});
+    return res.data;
+  },
+  remove: async (id: string) => {
+    const res = await apiClient.delete(`/alerts/${id}`);
     return res.data;
   },
 };
 
-// Doctor & Caregiver API
 export const clinicalApi = {
   getCaregiverPatients: async () => {
     const res = await apiClient.get('/caregivers/patients');
@@ -106,7 +124,6 @@ export const clinicalApi = {
   },
 };
 
-// AI Agent Chat API
 export const agentApi = {
   chat: async (message: string, sessionId: string = 'default_session', imageData?: string, patientInfo?: any) => {
     const res = await apiClient.post('/chat', {
@@ -118,4 +135,3 @@ export const agentApi = {
     return res.data;
   },
 };
-

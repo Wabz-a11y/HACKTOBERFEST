@@ -20,6 +20,8 @@ class AlertBase(BaseModel):
     message: str
     action_url: Optional[str] = None
     acknowledged: bool = False
+    starred: bool = False
+    deleted: bool = False
 
 
 class AlertCreate(AlertBase):
@@ -29,4 +31,3 @@ class AlertCreate(AlertBase):
 class AlertResponse(AlertBase):
     id: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
-
