@@ -52,7 +52,7 @@ Instead of error-prone manual text entry, patients photograph their prescription
 - Exact dosage (e.g., 500mg, 10ml)
 - Schedule and frequency (e.g., twice daily with meals, 08:00 and 20:00)
 - Total course duration and refill parameters
-- Critical auxiliary warnings (e.g., avoid direct sunlight, take with full glass of water)
+- Critical auxiliary warnings (e.g., avoid direct sunlight, take with full glass of water.)
 
 The agent populates MongoDB with validated reminder schedules and verifies entries with the patient in plain language.
 
