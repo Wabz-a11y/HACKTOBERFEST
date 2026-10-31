@@ -84,6 +84,25 @@ Clinicians access a longitudinal overview of patient health:
 ### Location-Aware Emergency Routing
 When severe symptoms or acute emergencies are detected, the agent triggers its Google Maps Places and Directions tool. It identifies the nearest emergency medical centers, computes real-time driving times and distances, and displays directions and phone numbers to both patient and caregiver.
 
+### Account Profiles and Notification Management
+
+Every role can open a dedicated profile page to:
+
+- Update the full name, phone number, and emergency contact.
+- Upload or remove a profile picture.
+- Enable or disable in-app and browser notifications.
+- Change the account password after verifying the current password.
+
+The navbar notification bell opens an in-place notification panel. Users can:
+
+- View unread notification counts.
+- Mark individual notifications as read.
+- Mark every notification as read.
+- Star important notifications.
+- Delete notifications without navigating away from the current page.
+
+Notifications are delivered through WebSocket connections and are also stored in MongoDB, with an in-memory fallback when MongoDB is unavailable.
+
 ---
 
 ## AI Agent System & Gemma 4 Architecture
@@ -240,11 +259,11 @@ smart-medication-reminder/
 │   │       ├── summary_tool.py      # Doctor health summary compiler
 │   │       └── memory_tools.py      # Vector recall and memory recording tools
 │   ├── routers/
-│   │   ├── auth.py                  # User registration and token generation
+│   │   ├── auth.py                  # Registration, login, profile settings and password updates
 │   │   ├── patients.py              # Patient profiles and medication lists
 │   │   ├── prescriptions.py         # Prescription file upload and verification
 │   │   ├── reminders.py             # Reminder scheduling and adherence logging
-│   │   ├── alerts.py                # Notification queries and acknowledgment
+│   │   ├── alerts.py                # Notification queries, read/star/delete actions
 │   │   ├── caregivers.py            # Caregiver dependent linking and dashboard
 │   │   └── doctors.py               # Doctor clinical overview and patient summaries
 │   ├── models/
@@ -271,6 +290,7 @@ smart-medication-reminder/
 │       │   ├── Auth/
 │       │   │   ├── Login.tsx        # Role-based login page
 │       │   │   └── Register.tsx     # Registration with role selection
+│       │   ├── Profile.tsx          # Account settings, profile picture and password management
 │       │   ├── Patient/
 │       │   │   ├── Dashboard.tsx    # Daily schedule and quick dose confirmation
 │       │   │   ├── Chat.tsx         # Multimodal AI chat interface with camera input
@@ -283,14 +303,14 @@ smart-medication-reminder/
 │       │       ├── PatientSummary.tsx # Gemma-compiled clinical summaries
 │       │       └── Prescriptions.tsx# Active prescription management
 │       ├── components/
-│       │   ├── Navbar.tsx           # Global navigation and alert bell
+│       │   ├── Navbar.tsx           # Global navigation and notification popup
 │       │   ├── ReminderCard.tsx     # Interactive dose confirmation card
 │       │   ├── AlertBadge.tsx       # Severity-coded badge component
 │       │   ├── CameraCapture.tsx    # MediaDevices camera capture for prescriptions
 │       │   └── MapView.tsx          # Google Maps embed displaying nearby medical centers
 │       ├── hooks/
-│       │   ├── useAuth.ts           # Authentication session context hook
-│       │   └── useWebSocket.ts      # Real-time alert stream hook
+│       │   ├── useAuth.tsx          # Authentication session context hook
+│       │   └── useNotifications.tsx # Real-time WebSocket and notification state
 │       └── services/
 │           └── api.ts               # Axios client with automatic bearer token injection
 ```
@@ -409,6 +429,8 @@ In accordance with Hacktoberfest evaluation guidelines, the project is verified 
 
 ## Known Limitations
 
+- **Notification delivery:** Browser notifications require permission from the operating system/browser; WebSocket delivery also depends on the backend remaining reachable.
+- **Profile image storage:** Profile pictures are stored as image data URLs in the user record and are currently best suited to small images.
 - **Internet Dependency:** Real-time web search and Google Maps hospital queries require an active internet connection.
 - **Regulatory Status:** The system is an assistive decision-support tool created for Hacktoberfest and is not an FDA/MOH-certified diagnostic medical device. It is designed to assist, not replace, certified medical practitioners.
 - **Camera Resolution:** Heavily degraded or out-of-focus prescription photos require patient text confirmation.

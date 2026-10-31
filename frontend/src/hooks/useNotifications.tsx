@@ -69,7 +69,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       };
     };
 
-    if ('Notification' in window && Notification.permission === 'default') {
+    if (user.notifications_enabled !== false && 'Notification' in window && Notification.permission === 'default') {
       void Notification.requestPermission();
     }
     connect();
@@ -79,7 +79,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       socketRef.current?.close();
       socketRef.current = null;
     };
-  }, [user?.id]);
+  }, [user?.id, user?.notifications_enabled]);
 
   return (
     <NotificationContext.Provider value={{ unreadCount, refreshNotifications, markAllRead: () => setUnreadCount(0) }}>
