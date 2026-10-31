@@ -74,6 +74,10 @@ async def connect_to_mongo():
             [("recipient_id", 1), ("recipient_role", 1)], background=True
         )
         await db.db.alerts.create_index("id", unique=True, background=True)
+        await db.db.chat_sessions.create_index(
+            [("user_id", 1), ("updated_at", -1)], background=True
+        )
+        await db.db.chat_sessions.create_index("id", unique=True, background=True)
         logger.info("📇 MongoDB Atlas collections & indexes verified.")
 
     except Exception as exc:

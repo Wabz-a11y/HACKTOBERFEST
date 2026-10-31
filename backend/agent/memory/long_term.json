@@ -3,5 +3,22 @@
   "chronic_conditions": {},
   "allergies": {},
   "adherence_history": [],
-  "historical_summaries": []
+  "historical_summaries": [
+    {
+      "ts": "2026-10-31T03:23:28.277200",
+      "summary": "Patient asked: hi | Agent replied: Hello there! How can I assist you today?"
+    },
+    {
+      "ts": "2026-10-31T03:50:16.890539",
+      "summary": "Patient asked: hi | Agent replied: Hello there! How can I assist you today?"
+    },
+    {
+      "ts": "2026-10-31T03:54:05.294111",
+      "summary": "Patient asked: hi | Agent replied: Hello there! How can I assist you today?"
+    },
+    {
+      "ts": "2026-10-31T03:54:25.375312",
+      "summary": "Patient asked: tell me about yourself | Agent replied: Hello! I'm MedAgent, your autonomous healthcare clinical assistant. My purpose is to help you safely adhere to your medication schedules, understand your drug dosages, potential side effects, and any important food or drug interactions. I can also he"
+    }
+  ]
 }

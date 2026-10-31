@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react';
-import { Bell, Camera, CheckCircle2, Lock, UserRound } from 'lucide-react';
+import { Bell, Camera, CheckCircle2, Lock, MessageSquare, Phone, ShieldAlert, Smartphone, UserRound } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { authApi } from '../services/api';
 
@@ -90,7 +90,7 @@ export const Profile: React.FC = () => {
         notifications_enabled: notificationsEnabled,
       });
       updateUser(updated);
-      setMessage('Profile settings saved.');
+      setMessage('Profile settings saved successfully.');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Could not save profile settings.');
     } finally {
@@ -122,24 +122,103 @@ export const Profile: React.FC = () => {
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="font-bold text-slate-900">Account information</h2>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-medium text-slate-700">Full name<input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-primary-500" /></label>
-            <label className="text-sm font-medium text-slate-700">Phone<input value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-primary-500" /></label>
-            <label className="text-sm font-medium text-slate-700 sm:col-span-2">Emergency contact<input value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal outline-none focus:border-primary-500" /></label>
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="font-bold text-slate-900">Account Information</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Manage your personal details and SMS alert contact numbers.</p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <MessageSquare className="w-3 h-3 text-emerald-600" />
+              TalkSasa SMS Ready
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <label className="text-sm font-medium text-slate-700">
+              Full name
+              <input
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. Jane Doe"
+                className="mt-1.5 w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-normal outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+            </label>
+
+            <div>
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                <Smartphone className="w-4 h-4 text-primary-600" />
+                Mobile Phone (for SMS Dose Reminders)
+              </label>
+              <div className="relative mt-1.5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <Phone className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. +254 712 345 678 or 0712 345 678"
+                  className="w-full rounded-xl border border-slate-200 pl-10 pr-3.5 py-2.5 font-normal outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-slate-500">
+                Used by MedAgent to send SMS alerts whenever a medication dose is missed.
+              </p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4 text-amber-600" />
+                Emergency Contact Phone
+              </label>
+              <div className="relative mt-1.5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                  <Phone className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="tel"
+                  value={emergencyContact}
+                  onChange={(e) => setEmergencyContact(e.target.value)}
+                  placeholder="e.g. +254 798 765 432 (Caregiver or Family member)"
+                  className="w-full rounded-xl border border-slate-200 pl-10 pr-3.5 py-2.5 font-normal outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                />
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Contacted during acute medical symptom triage or critical dose escalation.
+              </p>
+            </div>
+
             <div className="sm:col-span-2">
               <p className="text-sm font-medium text-slate-700">Email address</p>
-              <p className="mt-1 rounded-xl bg-slate-50 px-3 py-2.5 text-sm text-slate-500">{user.email}</p>
+              <p className="mt-1.5 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 text-sm text-slate-500">{user.email}</p>
             </div>
           </div>
 
           <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
-            <div className="flex items-center gap-3"><Bell className="h-5 w-5 text-primary-600" /><div><p className="text-sm font-semibold text-slate-800">Notifications</p><p className="text-xs text-slate-500">Receive medication and emergency alerts.</p></div></div>
-            <button type="button" onClick={() => setNotificationsEnabled((enabled) => !enabled)} className={`relative h-6 w-11 rounded-full transition ${notificationsEnabled ? 'bg-primary-600' : 'bg-slate-300'}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${notificationsEnabled ? 'left-[22px]' : 'left-0.5'}`} /></button>
+            <div className="flex items-center gap-3">
+              <Bell className="h-5 w-5 text-primary-600" />
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Notifications</p>
+                <p className="text-xs text-slate-500">Receive medication and emergency alerts.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setNotificationsEnabled((enabled) => !enabled)}
+              className={`relative h-6 w-11 rounded-full transition ${notificationsEnabled ? 'bg-primary-600' : 'bg-slate-300'}`}
+            >
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${notificationsEnabled ? 'left-[22px]' : 'left-0.5'}`} />
+            </button>
           </div>
 
           <div className="mt-6 flex justify-end">
-            <button disabled={saving} className="rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60">{saving ? 'Saving...' : 'Save changes'}</button>
+            <button
+              disabled={saving}
+              className="rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
+            >
+              {saving ? 'Saving...' : 'Save changes'}
+            </button>
           </div>
         </section>
       </form>

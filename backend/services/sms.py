@@ -76,6 +76,28 @@ def send_sms_sync(phone: str, message: str) -> Dict[str, Any]:
         return {"success": False, "error": str(e)}
 
 
+def send_patient_missed_dose_sms(
+    phone: str,
+    patient_name: str,
+    medication_name: str,
+    dosage: Optional[str] = None,
+    scheduled_time: Optional[str] = None,
+    instructions: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Sends an urgent missed dose reminder directly to the patient's phone via TalkSasa SMS.
+    """
+    dose_str = f" ({dosage})" if dosage and dosage.lower() != "standard dose" else ""
+    time_str = f" scheduled for {scheduled_time}" if scheduled_time else ""
+    inst_str = f"\nInstructions: {instructions}" if instructions else ""
+    sms_text = (
+        f"[Smart Med Alert - Missed Dose]\n"
+        f"Hi {patient_name}, you have a missed dose of {medication_name}{dose_str}{time_str}.{inst_str}\n"
+        f"Please check your Smart Med dose schedule and take it safely as directed by your physician."
+    )
+    return send_sms_sync(phone, sms_text)
+
+
 def send_caregiver_sms_alert(phone: str, patient_name: str, dose_name: str, urgency: str = "Missed Dose") -> Dict[str, Any]:
     """Helper to dispatch formatted dose alerts directly to Caregivers via TalkSasa."""
     sms_text = (

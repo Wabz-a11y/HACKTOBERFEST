@@ -80,3 +80,32 @@ export interface HospitalFacility {
   google_maps_url?: string;
   directions_url?: string;
 }
+
+
+export interface NavigationAction {
+  action: string;
+  target: string;
+  page_name: string;
+  reason?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'agent';
+  text: string;
+  image?: string;
+  timestamp: string;
+  hospitals?: HospitalFacility[];
+  navigation?: NavigationAction;
+}
+
+export interface ChatSession {
+  id: string;
+  user_id?: string;
+  title: string;
+  timestamp: string;
+  updated_at?: string;
+  messages: ChatMessage[];
+  message_count?: number;
+  last_message?: string;
+}

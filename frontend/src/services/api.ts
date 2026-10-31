@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, Reminder, Prescription, Alert } from '../types';
+import { User, Reminder, Prescription, Alert, ChatSession } from '../types';
 
 export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
@@ -125,13 +125,30 @@ export const clinicalApi = {
 };
 
 export const agentApi = {
-  chat: async (message: string, sessionId: string = 'default_session', imageData?: string, patientInfo?: any) => {
+  chat: async (
+    message: string,
+    sessionId: string = 'default_session',
+    imageData?: string,
+    patientInfo?: any
+  ) => {
     const res = await apiClient.post('/chat', {
       message,
       session_id: sessionId,
       image_data: imageData,
       patient_info: patientInfo,
     });
+    return res.data;
+  },
+  listSessions: async (): Promise<ChatSession[]> => {
+    const res = await apiClient.get('/chat/sessions');
+    return res.data;
+  },
+  getSession: async (sessionId: string): Promise<ChatSession> => {
+    const res = await apiClient.get(`/chat/sessions/${sessionId}`);
+    return res.data;
+  },
+  deleteSession: async (sessionId: string) => {
+    const res = await apiClient.delete(`/chat/sessions/${sessionId}`);
     return res.data;
   },
 };
