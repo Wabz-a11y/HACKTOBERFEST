@@ -1,12 +1,13 @@
 """
 MongoDB Atlas connection manager for Smart Medication Reminder API.
 
-The application exclusively uses the Atlas cluster configured via MONGODB_URI
-in .env. There is no localhost fallback — if Atlas is unreachable the app
-logs a clear error and all DB-dependent routes return graceful HTTP 503
-responses while the in-memory safety-net in each router keeps the API alive.
+The application uses MongoDB Atlas configured via MONGODB_URI.
+Supports SSL/TLS with certifi root CA certificates and creates collection
+indexes on startup.
 """
+import os
 import logging
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from backend.core.config import settings
 
@@ -23,21 +24,30 @@ db = Database()
 
 
 async def connect_to_mongo():
-    uri = settings.MONGODB_URI
-    db_name = settings.DB_NAME
+    uri = (settings.MONGODB_URI or os.getenv("MONGODB_URI", "")).strip()
+    db_name = (settings.DB_NAME or os.getenv("DB_NAME", "medication")).strip()
 
-    # Reject the bare localhost URI that would slip through if .env failed to load
+    if not uri:
+        logger.error(
+            "❌ MONGODB_URI is empty. Please ensure MONGODB_URI is defined in .env.\n"
+            "   → Running in in-memory fallback mode."
+        )
+        return
+
+    # Reject unintentional localhost fallbacks
     if "localhost" in uri or "127.0.0.1" in uri:
         logger.error(
-            "MONGODB_URI points to localhost — refusing to connect. "
-            "Ensure the Atlas URI from .env is loaded correctly. "
-            "Running in in-memory fallback mode."
+            "❌ MONGODB_URI points to localhost — refusing to connect. "
+            "Please configure the MongoDB Atlas cluster URI.\n"
+            "   → Running in in-memory fallback mode."
         )
         return
 
     try:
+        # Connect to MongoDB Atlas with certifi CA bundle
         db.client = AsyncIOMotorClient(
             uri,
+            tlsCAFile=certifi.where(),
             serverSelectionTimeoutMS=8000,
             connectTimeoutMS=8000,
             socketTimeoutMS=15000,
@@ -46,12 +56,12 @@ async def connect_to_mongo():
         )
         db.db = db.client[db_name]
 
-        # Ping to confirm Atlas is reachable
+        # Verify connectivity with an admin ping
         await db.client.admin.command("ping")
         db.connected = True
         logger.info(f"✅ Connected to MongoDB Atlas — database '{db_name}'")
 
-        # Background indexes for fast queries
+        # Create indexes for optimal query performance
         await db.db.users.create_index("email", unique=True, background=True)
         await db.db.users.create_index("id", unique=True, background=True)
         await db.db.reminders.create_index(
@@ -64,14 +74,12 @@ async def connect_to_mongo():
             [("recipient_id", 1), ("recipient_role", 1)], background=True
         )
         await db.db.alerts.create_index("id", unique=True, background=True)
-        logger.info("📇 MongoDB Atlas indexes verified.")
+        logger.info("📇 MongoDB Atlas collections & indexes verified.")
 
     except Exception as exc:
         db.connected = False
         logger.error(
             f"❌ MongoDB Atlas connection failed: {exc}\n"
-            "   → Check your MONGODB_URI in .env and ensure your IP is whitelisted "
-            "in the Atlas Network Access panel.\n"
             "   → Running in in-memory fallback mode — data will NOT persist across restarts."
         )
 
@@ -79,14 +87,14 @@ async def connect_to_mongo():
 async def close_mongo_connection():
     if db.client:
         db.client.close()
+        db.connected = False
         logger.info("MongoDB Atlas connection closed.")
 
 
 def get_database() -> AsyncIOMotorDatabase | None:
     """
-    Returns the live Atlas DB handle.
-    Returns None only when the Atlas connection failed — callers must handle
-    this by falling back to their in-memory store.
+    Returns the live Atlas database handle.
+    Returns None if connection is inactive, triggering route-level memory safety net.
     """
     return db.db if db.connected else None
 
