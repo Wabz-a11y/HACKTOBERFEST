@@ -37,19 +37,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
   if (user.role === 'patient') {
     navItems = [
       {
-        name: 'Dashboard',
+        name: 'Overview',
         to: '/',
         icon: LayoutDashboard,
         color: 'text-primary-600',
       },
       {
-        name: 'Doses',
+        name: 'Dose Schedule',
         to: '/doses',
         icon: Calendar,
         color: 'text-sky-600',
       },
       {
-        name: 'MedAgent',
+        name: 'MedAgent Chat',
         to: '/chat',
         icon: MessageSquare,
         color: 'text-emerald-600',
@@ -189,6 +189,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
       {!isCollapsed && (
         <div className="p-3 border-t border-slate-100 text-center">
           <p className="text-[11px] text-slate-400">Smart Medication Assistant</p>
+          <p className="text-[10px] text-slate-300 mt-0.5 hidden sm:block">
+            Overview = summary · Dose Schedule = full log
+          </p>
         </div>
       )}
     </aside>

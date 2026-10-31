@@ -1,23 +1,16 @@
 {
   "session_id": "default_patient_session",
-  "turn_count": 2,
-  "active_patient_id": "p_001",
+  "turn_count": 1,
+  "active_patient_id": null,
   "active_drug_topic": null,
   "last_symptom_reported": null,
   "last_tool_executed": null,
   "recent_interactions": [
     {
       "turn": 1,
-      "timestamp": "2026-10-31T02:33:53.722845",
-      "user": "Hi there",
-      "agent": "I am here to assist with your medications, reminder schedules, and prescription analysis. You can ask me questions about your prescribed drugs, report how you are feeling, upload prescription photos, or request nearby emergency facilities.",
-      "tool": null
-    },
-    {
-      "turn": 2,
-      "timestamp": "2026-10-31T02:36:05.277527",
+      "timestamp": "2026-10-31T03:23:28.277200",
       "user": "hi",
-      "agent": "I am here to assist with your medications, reminder schedules, and prescription analysis. You can ask me questions about your prescribed drugs, report how you are feeling, upload prescription photos, or request nearby emergency facilities.",
+      "agent": "Hello there! How can I assist you today?",
       "tool": null
     }
   ]

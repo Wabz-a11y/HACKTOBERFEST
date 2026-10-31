@@ -6,6 +6,7 @@ import { Sidebar } from './components/Sidebar';
 import { Login } from './pages/Auth/Login';
 import { Register } from './pages/Auth/Register';
 import { PatientDashboard } from './pages/Patient/Dashboard';
+import { PatientDoses } from './pages/Patient/Doses';
 import { PatientChat } from './pages/Patient/Chat';
 import { PatientReminders } from './pages/Patient/Reminders';
 import { CaregiverDashboard } from './pages/Caregiver/Dashboard';
@@ -31,57 +32,19 @@ const MainLayout: React.FC = () => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
-  const toggleSidebar = () => {
-    setIsCollapsed((prev) => !prev);
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
-      <Navbar onToggleSidebar={user ? toggleSidebar : undefined} />
+      <Navbar onToggleSidebar={user ? () => setIsCollapsed((p) => !p) : undefined} />
       <div className="flex flex-1">
-        {user && <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleSidebar} />}
+        {user && <Sidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed((p) => !p)} />}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
           <Routes>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <RoleBasedHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/doses"
-              element={
-                <ProtectedRoute>
-                  <RoleBasedHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/chat"
-              element={
-                <ProtectedRoute>
-                  <PatientChat />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/prescriptions"
-              element={
-                <ProtectedRoute>
-                  <PatientReminders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/alerts"
-              element={
-                <ProtectedRoute>
-                  <AlertsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<ProtectedRoute><RoleBasedHome /></ProtectedRoute>} />
+            {/* Patient: /doses is the full dose schedule; / is the overview dashboard */}
+            <Route path="/doses" element={<ProtectedRoute><PatientDoses /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><PatientChat /></ProtectedRoute>} />
+            <Route path="/prescriptions" element={<ProtectedRoute><PatientReminders /></ProtectedRoute>} />
+            <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
@@ -90,18 +53,16 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/*" element={<MainLayout />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
-};
+export const App: React.FC = () => (
+  <AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/*" element={<MainLayout />} />
+      </Routes>
+    </BrowserRouter>
+  </AuthProvider>
+);
 
 export default App;

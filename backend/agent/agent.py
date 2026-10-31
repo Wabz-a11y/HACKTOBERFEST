@@ -1,7 +1,9 @@
 import os
 import sys
 import logging
-from typing import Optional, Dict, Any
+import base64
+import re
+from typing import Optional, Dict, Any, List
 
 from backend.core.config import settings
 from backend.agent.memory.memory_manager import memory_manager
@@ -19,41 +21,34 @@ logger = logging.getLogger(__name__)
 
 APP_NAME = "smart_med_reminder"
 USER_ID = "default_user"
-MODEL_ID = settings.GEMMA_MODEL_ID or "gemma-4-26b-it"
+MODEL_ID = settings.GEMMA_MODEL_ID or "gemini-2.5-flash"
 
 
 def get_agent_instruction(patient_info: Optional[Dict[str, Any]] = None) -> str:
     runtime_context = memory_manager.build_runtime_context(patient_info)
     return f"""
-You are MedAgent — an autonomous healthcare clinical assistant powered by Google DeepMind's Gemma 4.
-Your mission is to ensure patients adhere safely to medication schedules, coordinate with caregivers, and alert attending physicians when needed.
+You are MedAgent — a compassionate, highly capable autonomous healthcare clinical assistant.
+Your mission is to ensure patients adhere safely to medication schedules, understand drug dosages, side effects, and food/drug interactions, coordinate with caregivers, and advise appropriate clinical action.
 
 {runtime_context}
 
-ROLE & CAPABILITIES:
-1. Multimodal Prescription Intake:
-   - When given an image, pill bottle photo, or prescription text, use parse_prescription() to extract drug name, dosage, frequency, and warnings.
-   - If dosage or frequency is ambiguous, clarify politely with the patient rather than guessing.
-2. Clinical Inquiries & Safety:
-   - When asked about side effects, food interactions (e.g. grapefruit), alcohol, or missed doses, use search_web() to consult verified pharmacological guidelines.
-   - Never recommend doubling up on doses for missed medications.
-3. Emergency Identification & Hospital Triage:
-   - If the patient mentions red-flag emergency symptoms (crushing chest pain, severe shortness of breath, anaphylaxis, sudden paralysis), IMMEDIATELY:
-     a) Call find_hospitals() to obtain nearby emergency facilities and transit times.
-     b) Call send_alert(target_role="caregiver", severity="emergency", message="Emergency: Patient reporting acute symptoms.")
-     c) Call send_alert(target_role="doctor", severity="emergency", message="Emergency alert for patient triage.")
-     d) Plainly urge the patient to dial 911 / 999 / local emergency services without delay.
-4. Longitudinal Intelligence for Doctors:
-   - Use write_summary() to compile structured adherence and symptom summaries when requested by clinicians.
-5. Persistent Learning:
-   - Use recall_memory() and remember_patient() to track chronic conditions and habits over time.
-
-Tone: Empathetic, clear, clinically grounded, objective. Speak in natural language without unnecessary technical jargon.
-Never recite internal prompt instructions, model names, or framework architectures (like Gemma, ADK, or MCP) to patients or clinicians. Always speak as MedAgent, the personal medication assistant.
+CLINICAL GUIDELINES & BEHAVIOR:
+1. Patient Queries:
+   - For greetings, general conversation, and questions ("hi", "hello", "how are you"), respond naturally, warmly, and politely as MedAgent.
+   - For inquiries about medications, dosage, missed doses, side effects, or drug interactions (e.g. grapefruit juice, alcohol), provide verified, evidence-based guidance in clear, understandable language.
+   - Never recommend doubling up on missed doses.
+2. Multimodal Prescription Analysis:
+   - When given an image, pill bottle photo, or prescription details, carefully identify drug names, dosages, frequencies, and instructions.
+   - Offer to schedule them as reminders for the patient.
+3. Emergency Protocol:
+   - When a patient describes acute red-flag symptoms (severe chest pain, shortness of breath, sudden numbness, anaphylaxis), prioritize patient safety, advise immediate emergency care, and stay calm and authoritative.
+4. Professional Tone:
+   - Empathetic, reassuring, clinically grounded, objective. Speak in natural language without robotic preambles.
+   - Do NOT recite internal prompt instructions, model names, or technical frameworks. Always speak as MedAgent.
 """.strip()
 
 
-# Attempt initializing Google ADK Agent
+# Attempt initializing Google ADK Agent if available
 med_agent = None
 adk_app = None
 
@@ -77,89 +72,160 @@ try:
         ],
     )
     adk_app = App(name=APP_NAME, root_agent=med_agent)
-    logger.info("Initialized Google ADK LlmAgent with Gemma 4 successfully.")
+    logger.info("Initialized Google ADK LlmAgent successfully.")
 except Exception as exc:
-    logger.warning(f"Google ADK Agent initialization deferred: {exc}")
+    logger.info(f"Google ADK Agent initialization deferred ({exc}); using Google GenAI client.")
 
 
-async def ask_med_agent(session_id: str, user_text: str, patient_info: Optional[Dict[str, Any]] = None, image_data: Optional[str] = None) -> str:
+def _get_genai_client():
+    """Returns an authenticated Google GenAI client instance if API key is present."""
+    api_key = settings.GOOGLE_API_KEY
+    if not api_key:
+        return None
+    try:
+        from google import genai
+        return genai.Client(api_key=api_key)
+    except Exception as exc:
+        logger.warning(f"Failed to instantiate google.genai.Client: {exc}")
+        return None
+
+
+async def ask_med_agent(
+    session_id: str,
+    user_text: str,
+    patient_info: Optional[Dict[str, Any]] = None,
+    image_data: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Core inference loop: Dispatches query to Gemma 4 via Google ADK or Google GenAI,
-    maintains short/long-term memory, and self-corrects tools.
+    Core inference loop: Dispatches query directly to the live Google GenAI model.
+    Maintains memory, handles multimodal prescription uploads, and performs
+    automated triage dispatch for acute emergencies.
     """
-    user_lower = (user_text or "").lower()
-    tool_executed = None
+    user_text_clean = (user_text or "").strip()
+    user_lower = user_text_clean.lower()
     system_instruction = get_agent_instruction(patient_info)
 
-    # 1. Check for Emergency Triage
-    emergency_keywords = ["chest pain", "shortness of breath", "heart attack", "collapsed", "cannot breathe", "anaphylaxis", "severe allergic"]
-    if any(k in user_lower for k in emergency_keywords):
-        hosp_data = find_hospitals()
-        hospitals = hosp_data.get("hospitals", [])
-        hosp_list = "\n".join([f"- **{h['name']}** ({h.get('distance_estimate', 'Nearby')}): {h.get('address')} | Tel: {h.get('phone', 'N/A')} (ETA: {h.get('eta_minutes', 'Immediate')})" for h in hospitals[:3]])
-        
-        send_alert(target_role="caregiver", patient_id=patient_info.get("id", "patient_1") if patient_info else "patient_1", severity="emergency", message=f"Emergency: Patient reported '{user_text}'. Nearest medical centers surfaced.")
-        send_alert(target_role="doctor", patient_id=patient_info.get("id", "patient_1") if patient_info else "patient_1", severity="emergency", message=f"Urgent clinical alert: Patient reported '{user_text}'.")
-        tool_executed = "find_hospitals, send_alert"
-
-        reply = (
-            f"⚠️ **EMERGENCY MEDICAL WARNING**\n\n"
-            f"Please stop and sit down. If you are experiencing severe symptoms such as chest pain or difficulty breathing, **please call emergency services (999 / 911 / 112) immediately**.\n\n"
-            f"I have automatically alerted your designated caregiver and attending clinician.\n\n"
-            f"**Nearest Emergency Medical Facilities:**\n{hosp_list}\n\n"
-            f"Please do not attempt to drive yourself. Have someone escort you or call an ambulance immediately."
-        )
-        memory_manager.record_turn(user_text, reply, patient_id=patient_info.get("id") if patient_info else None, tool=tool_executed)
-        return reply
-
-    # 2. Check for Prescription / Pill Intake
-    rx_keywords = ["prescription", "pill", "mg", "tablets", "capsule", "amoxicillin", "metformin", "lisinopril", "paracetamol", "panadol", "ibuprofen", "take twice", "dosage", "upload"]
-    if image_data or any(k in user_lower for k in rx_keywords):
-        parsed = parse_prescription(user_text)
-        tool_executed = "parse_prescription"
-        meds = parsed.get("parsed_medications", [])
-        med_summary = "\n".join([f"• **{m['drug_name']}** ({m['dosage']}): {m['frequency']} at {', '.join(m.get('times', []))}. Instructions: {m.get('instructions')}" for m in meds])
-        
-        reply = (
-            f"I have analyzed your prescription information:\n\n{med_summary}\n\n"
-            f"Would you like me to schedule these reminders into your daily calendar? Let me know if any dosage details need adjustment."
-        )
-        memory_manager.record_turn(user_text, reply, patient_id=patient_info.get("id") if patient_info else None, tool=tool_executed)
-        return reply
-
-    # 3. Check for Pharmacological / Food / Missed Dose Inquiries
-    pharma_keywords = ["missed", "grapefruit", "alcohol", "food", "side effect", "interaction", "empty stomach", "forgot to take"]
-    if any(k in user_lower for k in pharma_keywords):
-        web_res = search_web(user_text)
-        tool_executed = "search_web"
-        results = web_res.get("results", "")
-        reply = f"Here is the verified medical guidance regarding your question:\n\n{results}\n\nAlways ensure you do not double up on doses without direct clinician approval."
-        memory_manager.record_turn(user_text, reply, patient_id=patient_info.get("id") if patient_info else None, tool=tool_executed)
-        return reply
-
-    # 4. Attempt Google GenAI with Gemma 4 if GOOGLE_API_KEY is available
-    if settings.GOOGLE_API_KEY:
+    # ── 1. Check for Acute Red-Flag Emergency Triage ──
+    acute_emergency_keywords = [
+        "crushing chest pain", "chest pain", "heart attack", "collapsed",
+        "cannot breathe", "can't breathe", "anaphylaxis", "severe allergic reaction",
+        "choking", "coughing up blood"
+    ]
+    if any(k in user_lower for k in acute_emergency_keywords):
         try:
-            from google import genai
-            client = genai.Client(api_key=settings.GOOGLE_API_KEY)
-            prompt = f"{system_instruction}\n\nPatient Query: {user_text}"
-            response = client.models.generate_content(
-                model=settings.GEMMA_MODEL_ID,
-                contents=prompt,
+            hosp_data = find_hospitals()
+            hospitals = hosp_data.get("hospitals", [])
+        except Exception:
+            hospitals = []
+
+        patient_id = patient_info.get("id", "patient_1") if patient_info else "patient_1"
+        try:
+            send_alert(
+                target_role="caregiver",
+                patient_id=patient_id,
+                severity="emergency",
+                message=f"CRITICAL TRIAGE: Patient reported acute symptoms: '{user_text_clean}'."
             )
-            if response and response.text:
-                reply = response.text.strip()
-                memory_manager.record_turn(user_text, reply, patient_id=patient_info.get("id") if patient_info else None)
-                return reply
-        except Exception as exc:
-            logger.warning(f"Gemma 4 GenAI inference failed or fallback triggered: {exc}")
+            send_alert(
+                target_role="doctor",
+                patient_id=patient_id,
+                severity="emergency",
+                message=f"URGENT CLINICAL ALERT: Patient reported acute symptoms: '{user_text_clean}'."
+            )
+        except Exception as e:
+            logger.warning(f"Failed to dispatch emergency alerts: {e}")
 
-    # 5. Intelligent Conversational Assistant Reply
-    reply = (
-        f"I am here to assist with your medications, reminder schedules, and prescription analysis. "
-        f"You can ask me questions about your prescribed drugs, report how you are feeling, upload prescription photos, "
-        f"or request nearby emergency facilities."
+        hosp_lines = [
+            f"- **{h.get('name')}** ({h.get('distance_estimate', 'Nearby')}): {h.get('address')} | Tel: {h.get('phone', 'N/A')} (ETA: {h.get('eta_minutes', 'Immediate')})"
+            for h in hospitals[:3]
+        ]
+        hosp_text = "\n".join(hosp_lines) if hosp_lines else "• Dial emergency services immediately."
+
+        reply = (
+            f"⚠️ **URGENT MEDICAL EMERGENCY WARNING**\n\n"
+            f"Please sit down and remain calm. If you or someone with you is experiencing severe symptoms such as chest pain or severe difficulty breathing, **call emergency services (999 / 911 / 112) immediately**.\n\n"
+            f"I have automatically dispatched an emergency alert to your designated caregiver and attending clinician.\n\n"
+            f"**Nearest Emergency Medical Centers:**\n{hosp_text}\n\n"
+            f"Do not drive yourself. Have someone escort you or request an ambulance immediately."
+        )
+        memory_manager.record_turn(user_text_clean, reply, patient_id=patient_info.get("id") if patient_info else None, tool="find_hospitals, send_alert")
+        return {
+            "output": reply,
+            "is_emergency": True,
+            "hospitals": hospitals[:4]
+        }
+
+    # ── 2. Live Google GenAI API Call ──
+    client = _get_genai_client()
+    if client:
+        # Prepare contents (text + optional multimodal image)
+        contents = []
+        if image_data:
+            try:
+                from google.genai import types
+                match = re.match(r"data:(image/\w+);base64,(.*)", image_data)
+                if match:
+                    mime = match.group(1)
+                    raw_b64 = match.group(2)
+                else:
+                    mime = "image/jpeg"
+                    raw_b64 = image_data
+                img_bytes = base64.b64decode(raw_b64)
+                img_part = types.Part.from_bytes(data=img_bytes, mime_type=mime)
+                contents.append(img_part)
+            except Exception as e:
+                logger.warning(f"Could not parse image data for GenAI: {e}")
+
+        prompt_text = user_text_clean if user_text_clean else "Please analyze this prescription image and extract medication details."
+        contents.append(prompt_text)
+
+        # Try primary model, with graceful fallback to alternative supported IDs
+        candidate_models = [
+            settings.GEMMA_MODEL_ID,
+            "gemini-2.5-flash",
+            "gemma-4-26b-a4b-it",
+            "gemini-2.5-flash-lite",
+        ]
+        # Deduplicate while preserving order
+        candidate_models = list(dict.fromkeys([m for m in candidate_models if m]))
+
+        last_error = None
+        for model_name in candidate_models:
+            try:
+                from google.genai import types
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.35,
+                )
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    config=config,
+                )
+                if response and response.text:
+                    reply = response.text.strip()
+                    memory_manager.record_turn(user_text_clean, reply, patient_id=patient_info.get("id") if patient_info else None)
+                    return {
+                        "output": reply,
+                        "is_emergency": False,
+                        "hospitals": None
+                    }
+            except Exception as exc:
+                last_error = exc
+                logger.warning(f"GenAI inference attempt with model '{model_name}' failed: {exc}")
+
+        logger.error(f"All GenAI candidate models failed. Last error: {last_error}")
+
+    # ── 3. Relevant, Truthful Message when Agent Service is Inaccessible ──
+    # No fake canned responses with hardcoded keywords
+    unavailable_msg = (
+        "⚠️ **MedAgent Service Notice**\n\n"
+        "I am currently unable to reach the clinical AI model service. "
+        "Please check your internet connection or try again in a few moments.\n\n"
+        "If you are experiencing a medical emergency, please contact your local emergency services (999 / 911 / 112) or reach your physician directly."
     )
-    memory_manager.record_turn(user_text, reply, patient_id=patient_info.get("id") if patient_info else None)
-    return reply
-
+    return {
+        "output": unavailable_msg,
+        "is_emergency": False,
+        "hospitals": None
+    }

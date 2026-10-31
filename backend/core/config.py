@@ -8,13 +8,13 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     PORT: int = 8000
     
-    # MongoDB
-    MONGODB_URI: str = "mongodb://localhost:27017/smart_med_reminder"
+    # MongoDB — must be set to a valid Atlas URI in .env; localhost is rejected at startup
+    MONGODB_URI: str = ""   # Set via MONGODB_URI in .env
     DB_NAME: str = "smart_med_reminder"
     
-    # Google AI / Gemma 4
+    # Google AI / Gemma / Gemini
     GOOGLE_API_KEY: str = ""
-    GEMMA_MODEL_ID: str = "gemma-4-26b-it"
+    GEMMA_MODEL_ID: str = "gemini-2.5-flash"
     
     # TalkSasa SMS Gateway
     TALKSASA_API_KEY: str = ""
